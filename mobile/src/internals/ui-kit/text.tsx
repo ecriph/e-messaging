@@ -9,14 +9,14 @@ interface TextProps {
   ml?: string;
   mt?: string;
   mb?: string;
-  fontSize?: string;
+  fontSize?: number;
   margin?: number;
   align?: 'left' | 'right' | 'center';
 }
 export const HeaderText1 = styled.Text<TextProps>`
   font-weight: ${({ weight }) => weight || '600'};
   font-size: ${`${FontSize.header1}px`};
-  line-height: ${({ lineHeight }) => lineHeight || '36px'};
+  line-height: ${({ lineHeight }) => lineHeight || '30px'};
   color: ${({ color }) => color || `${Colors.black}`};
   font-family: ${({ font }) => font || `${Font.Bold}`};
   margin-top: ${({ mt }) => mt || '0px'};
@@ -26,7 +26,7 @@ export const HeaderText1 = styled.Text<TextProps>`
 export const HeaderText2 = styled.Text<TextProps>`
   font-weight: ${({ weight }) => weight || '600'};
   font-size: ${`${FontSize.header2}px`};
-  line-height: ${({ lineHeight }) => lineHeight || '36px'};
+  line-height: ${({ lineHeight }) => lineHeight || '30px'};
   color: ${({ color }) => color || `${Colors.black}`};
   font-family: ${({ font }) => font || `${Font.Regular}`};
   margin-top: ${({ mt }) => mt || '0px'};
@@ -38,9 +38,9 @@ export const HeaderText3 = styled.Text<TextProps>`
   line-height: ${({ lineHeight }) => lineHeight || '30px'};
   font-weight: ${({ weight }) => weight || '400'};
   color: ${({ color }) => color || `${Colors.black}`};
-  margin-top: ${({ mt }) => mt || '14px'};
-  font-family: ${({ font }) => font || `${Font.Bold}`};
   margin-top: ${({ mt }) => mt || '0px'};
+  font-family: ${({ font }) => font || `${Font.Bold}`};
+  margin-bottom: ${({ mb }) => mb || '0px'};
 `;
 
 export const HeaderText4 = styled.Text<TextProps>`

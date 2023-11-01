@@ -19,13 +19,14 @@ interface InputWrapProps {
   bgColor?: string;
   justify?: 'space-between' | 'space-evenly' | 'flex-start' | 'flex-end';
   mb?: string;
+  fontSize?: number;
 }
 const Input = styled.TextInput<InputWrapProps>`
   height: ${({ height }) => height || '45px'};
   border-radius: ${({ borderRadius }) => borderRadius || '15px'};
   width: ${({ width }) => width || '100%'};
   padding: 0px 10px;
-  font-size: ${FontSize.header3};
+  font-size: ${({ fontSize }) => fontSize || FontSize.header3}px;
   font-weight: 600;
 `;
 
@@ -79,6 +80,7 @@ interface InputFieldProps {
   label?: string;
   checked?: boolean;
   create?: () => void;
+  fontSize?: number;
 }
 
 export const PrimaryInput: React.FC<InputFieldProps> = ({
@@ -91,6 +93,7 @@ export const PrimaryInput: React.FC<InputFieldProps> = ({
   text,
   autoFocus,
   edit,
+  fontSize,
 }) => {
   const [focus, setFocus] = useState(Colors.inputs.textInput);
   const [blur, setBlur] = useState(Colors.inputs.textInput);
@@ -121,6 +124,7 @@ export const PrimaryInput: React.FC<InputFieldProps> = ({
           onBlur={onBlur}
           bgColor={focus.background}
           editable={edit}
+          fontSize={fontSize}
         />
       </TextInputWrapper>
       <NormalText color={Colors.error}>{error}</NormalText>
