@@ -10,6 +10,8 @@ import BackArrow from '../../internals/ui-kit/back-arrow';
 import { Colors, Font } from '../../internals/ui-kit/theme';
 import { PasswordInput, PrimaryInput } from '../../internals/ui-kit/input';
 import { Formik } from 'formik';
+import { useDispatch } from 'react-redux';
+import { LOGIN_USER } from '../../redux/user/reducer';
 
 type Props = {};
 interface LoginProps {
@@ -20,9 +22,15 @@ interface LoginProps {
 const LoginScreen = (props: Props) => {
   const [isLoading, setLoading] = React.useState();
   const initialValues: LoginProps = { email: '', password: '' };
+  const dispatch = useDispatch();
 
   return (
-    <Formik initialValues={initialValues} onSubmit={(values, action) => {}}>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={async (values, action) => {
+        dispatch(LOGIN_USER());
+      }}
+    >
       {({
         errors,
         handleChange,

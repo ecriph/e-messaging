@@ -1,11 +1,13 @@
 import styled from 'styled-components/native';
 import { Colors } from './theme';
 import { HeaderText2, NormalText } from './text';
+import { FontAwesome } from '@expo/vector-icons';
 
 interface TouchableProps {
   height?: string;
   borderRadius?: string;
   width?: string;
+  mb?: string;
 }
 
 interface ButtonProps {
@@ -17,7 +19,6 @@ const Button = styled.TouchableOpacity<TouchableProps>`
   border-radius: ${({ borderRadius }) => borderRadius || '15px'};
   width: ${({ width }) => width || '100%'};
   color: white;
-  margin-bottom: 20px;
   align-items: center;
   justify-content: center;
 `;
@@ -26,24 +27,29 @@ const Primary = styled(Button)<ButtonProps>`
     enabled
       ? `${Colors.buttons.primary.background}`
       : `${Colors.buttons.primary.disabled}`};
+  width: ${({ width }) => width || 'auto'};
+  margin-bottom: ${({ mb }) => mb || '20px'};
 `;
 const Transparent = styled(Button)<ButtonProps>`
   background-color: ${({ enabled }) =>
     enabled
       ? `${Colors.buttons.primary.background}`
       : `${Colors.buttons.primary.disabled}`};
+  margin-bottom: ${({ mb }) => mb || '20px'};
 `;
 const Gradient = styled(Button)<ButtonProps>`
   background-color: ${({ enabled }) =>
     enabled
       ? `${Colors.buttons.gradient.background}`
       : `${Colors.buttons.gradient.disabled}`};
+  margin-bottom: ${({ mb }) => mb || '20px'};
 `;
 const Secondary = styled(Button)<ButtonProps>`
   background-color: ${({ enabled }) =>
     enabled
       ? `${Colors.buttons.secondary.background}`
       : `${Colors.buttons.gradient.background}`};
+  margin-bottom: ${({ mb }) => mb || '20px'};
 `;
 const Outline = styled(Button)<ButtonProps>`
   background-color: ${({ enabled }) =>
@@ -53,12 +59,15 @@ const Outline = styled(Button)<ButtonProps>`
   align-items: center;
   justify-content: center;
   align-content: center;
+  margin-bottom: ${({ mb }) => mb || '20px'};
 `;
 
 interface OnPressButtonProps {
-  text: string;
+  width?: string;
+  text?: string;
   onPress: () => void;
   enabled?: boolean;
+  mb?: string;
 }
 
 export const PrimaryButton: React.FC<OnPressButtonProps> = ({
@@ -74,6 +83,27 @@ export const PrimaryButton: React.FC<OnPressButtonProps> = ({
       <HeaderText2 weight="600" color={Colors.buttons.primary.color}>
         {text}
       </HeaderText2>
+    </Primary>
+  );
+};
+export const ChatButton: React.FC<OnPressButtonProps> = ({
+  width,
+  onPress,
+  enabled = true,
+  mb,
+}) => {
+  const onBtnPress = () => {
+    onPress();
+  };
+  return (
+    <Primary
+      onPress={onBtnPress}
+      disabled={!enabled}
+      enabled={enabled}
+      width={width}
+      mb={mb}
+    >
+      <FontAwesome name="send" size={25} color={Colors.white} />
     </Primary>
   );
 };

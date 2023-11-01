@@ -29,7 +29,7 @@ export default function HomeScreen() {
             <HeaderText4 color={Colors.white} weight="800">
               eChat
             </HeaderText4>
-            <SubHeaderText color={Colors.offwhite}>
+            <SubHeaderText mb="20px" color={Colors.offwhite}>
               Connecting you with friends and family
             </SubHeaderText>
           </FlexColumnContainer>

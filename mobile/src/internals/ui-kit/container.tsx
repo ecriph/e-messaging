@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
+import {
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback,
+  Image,
+} from 'react-native';
 import styled from 'styled-components/native';
 import { Colors } from './theme';
 
@@ -92,7 +97,7 @@ interface FlexRowProps {
     | 'flex-end'
     | 'space-evenly'
     | 'space-between';
-  align?: 'stretch' | 'flex-start' | 'flex-end';
+  align?: 'stretch' | 'flex-start' | 'flex-end' | 'center';
   width?: string;
   mt?: string;
   ml?: string;
@@ -118,11 +123,42 @@ export const FlexRowContainer = styled.View<FlexRowProps>`
   width: ${({ width }) => width || 'auto'};
   background-color: ${({ bg }) => bg || ''};
 `;
+export const FlexRowRecieveChat = styled.View<FlexRowProps>`
+  display: flex;
+  flex-direction: row;
+  margin-bottom: ${({ mb }) => mb || '0px'};
+  margin-top: ${({ mt }) => mt || '0px'};
+  margin-left: ${({ ml }) => ml || '0px'};
+  margin-right: ${({ mr }) => mr || '0px'};
+  justify-content: ${({ justifyContent }) => justifyContent || 'center'};
+  align-items: ${({ align }) => align || 'stretch'};
+  width: ${({ width }) => width || 'auto'};
+  padding: 10px;
+  background-color: ${({ bg }) => bg || Colors.offwhite};
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+`;
+export const FlexRowSendChat = styled.View<FlexRowProps>`
+  display: flex;
+  flex-direction: row;
+  margin-bottom: ${({ mb }) => mb || '0px'};
+  margin-top: ${({ mt }) => mt || '0px'};
+  margin-left: ${({ ml }) => ml || '0px'};
+  margin-right: ${({ mr }) => mr || '0px'};
+  justify-content: ${({ justifyContent }) => justifyContent || 'center'};
+  align-items: ${({ align }) => align || 'stretch'};
+  width: ${({ width }) => width || 'auto'};
+  background-color: ${({ bg }) => bg || Colors.grey};
+  border-top-left-radius: 80px;
+  border-bottom-left-radius: 80px;
+  border-bottom-right-radius: 80px;
+`;
 
 export const FlexColumnContainer = styled.View<FlexRowProps>`
   display: flex;
   flex-direction: column;
-  margin-bottom: ${({ mb }) => mb || '16px'};
+  margin-bottom: ${({ mb }) => mb || '0px'};
   margin-top: ${({ mt }) => mt || '0px'};
   margin-left: ${({ ml }) => ml || '0px'};
   margin-right: ${({ mr }) => mr || '0px'};
@@ -131,4 +167,21 @@ export const FlexColumnContainer = styled.View<FlexRowProps>`
   align-items: ${({ align }) => align || 'stretch'};
   height: ${({ height }) => height || 'auto'};
   background-color: ${({ bg }) => bg || ''};
+`;
+
+export const Circle = styled.View<FlexRowProps>`
+  width: ${({ width }) => width || '60px'};
+  height: ${({ height }) => height || '60px'};
+  margin-right: ${({ mr }) => mr || '0px'};
+  border-radius: 80px;
+  background-color: ${({ bg }) => bg || Colors.green};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 10px;
+`;
+
+export const ImageWrap = styled(Image)`
+  width: ${({ width }) => width || '30px'};
+  height: ${({ height }) => height || '30px'};
 `;

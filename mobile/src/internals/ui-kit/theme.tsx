@@ -1,5 +1,5 @@
 export const Colors = {
-  green: '#c7d119',
+  green: '#5fce73',
   strongGreen: '#4d500a',
   lightgreen: '#d7db8c',
   orange: '#FFD6D4',
