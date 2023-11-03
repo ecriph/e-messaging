@@ -66,6 +66,7 @@ export const MainContainer: React.FC<ContainerProps> = ({
     <SafeAreaView background={bgColor} useOverlay={useOverlay}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <Container
@@ -148,11 +149,12 @@ export const FlexRowSendChat = styled.View<FlexRowProps>`
   margin-right: ${({ mr }) => mr || '0px'};
   justify-content: ${({ justifyContent }) => justifyContent || 'center'};
   align-items: ${({ align }) => align || 'stretch'};
-  width: ${({ width }) => width || 'auto'};
-  background-color: ${({ bg }) => bg || Colors.grey};
-  border-top-left-radius: 80px;
-  border-bottom-left-radius: 80px;
-  border-bottom-right-radius: 80px;
+  width: ${({ width }) => width || 'inherit'};
+  padding: 10px;
+  background-color: ${({ bg }) => bg || Colors.lightgreen};
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 `;
 
 export const FlexColumnContainer = styled.View<FlexRowProps>`

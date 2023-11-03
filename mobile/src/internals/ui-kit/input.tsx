@@ -68,7 +68,7 @@ interface InputFieldProps {
     | 'phone-pad'
     | 'numeric';
   value: any;
-  onChangeText: () => void;
+  onChangeText: (value: string) => void;
   error?: string;
   text: string;
   autoFocus?: boolean;
@@ -81,6 +81,7 @@ interface InputFieldProps {
   checked?: boolean;
   create?: () => void;
   fontSize?: number;
+  onFocus?: () => void;
 }
 
 export const PrimaryInput: React.FC<InputFieldProps> = ({
@@ -94,14 +95,11 @@ export const PrimaryInput: React.FC<InputFieldProps> = ({
   autoFocus,
   edit,
   fontSize,
+  onFocus,
 }) => {
   const [focus, setFocus] = useState(Colors.inputs.textInput);
   const [blur, setBlur] = useState(Colors.inputs.textInput);
 
-  const onFocus = () => {
-    setFocus(Colors.inputs.outline);
-    setBlur(Colors.inputs.outline);
-  };
   const onBlur = () => {
     setFocus(Colors.inputs.textInput);
     setBlur(Colors.inputs.textInput);
