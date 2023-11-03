@@ -11,8 +11,8 @@ import {
   PURGE,
   REGISTER,
 } from 'redux-persist';
-
-import reducers from './reducers';
+import { rootReducer } from './reducers';
+import { useDispatch } from 'react-redux';
 
 const persistConfig = {
   key: 'root',
@@ -20,7 +20,7 @@ const persistConfig = {
   whitelist: ['theme'],
 };
 
-const persistedReducer = persistReducer(persistConfig, reducers);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,
@@ -33,6 +33,8 @@ const store = configureStore({
     return middlewares;
   },
 });
+
+export type AppDispatch = typeof store.dispatch;
 
 const persistor = persistStore(store);
 

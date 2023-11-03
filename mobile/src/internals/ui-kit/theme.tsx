@@ -1,7 +1,7 @@
 export const Colors = {
   green: '#5fce73',
   strongGreen: '#4d500a',
-  lightgreen: '#d7db8c',
+  lightgreen: '#cbf0d2',
   orange: '#FFD6D4',
   red: '#DC231E',
   white: '#fff',

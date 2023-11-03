@@ -15,8 +15,8 @@ interface TextProps {
 }
 export const HeaderText1 = styled.Text<TextProps>`
   font-weight: ${({ weight }) => weight || '600'};
-  font-size: ${`${FontSize.header1}px`};
-  line-height: ${({ lineHeight }) => lineHeight || '30px'};
+  font-size: ${({ fontSize }) => fontSize || `${FontSize.header1}`}px;
+  line-height: ${({ lineHeight }) => lineHeight || '24px'};
   color: ${({ color }) => color || `${Colors.black}`};
   font-family: ${({ font }) => font || `${Font.Bold}`};
   margin-top: ${({ mt }) => mt || '0px'};
@@ -25,8 +25,8 @@ export const HeaderText1 = styled.Text<TextProps>`
 
 export const HeaderText2 = styled.Text<TextProps>`
   font-weight: ${({ weight }) => weight || '600'};
-  font-size: ${`${FontSize.header2}px`};
-  line-height: ${({ lineHeight }) => lineHeight || '30px'};
+  font-size: ${({ fontSize }) => fontSize || `${FontSize.header2}`}px;
+  line-height: ${({ lineHeight }) => lineHeight || '24px'};
   color: ${({ color }) => color || `${Colors.black}`};
   font-family: ${({ font }) => font || `${Font.Regular}`};
   margin-top: ${({ mt }) => mt || '0px'};
@@ -34,7 +34,7 @@ export const HeaderText2 = styled.Text<TextProps>`
 `;
 
 export const HeaderText3 = styled.Text<TextProps>`
-  font-size: ${({ fontSize }) => fontSize || `${FontSize.header3}px`};
+  font-size: ${({ fontSize }) => fontSize || `${FontSize.header3}`}px;
   line-height: ${({ lineHeight }) => lineHeight || '30px'};
   font-weight: ${({ weight }) => weight || '400'};
   color: ${({ color }) => color || `${Colors.black}`};
@@ -54,7 +54,7 @@ export const HeaderText4 = styled.Text<TextProps>`
 `;
 
 export const SubHeaderText = styled.Text<TextProps>`
-  font-size: ${({ fontSize }) => fontSize || `${FontSize.subheader}px`};
+  font-size: ${({ fontSize }) => fontSize || `${FontSize.subheader}`}px;
   line-height: ${({ lineHeight }) => lineHeight || '24px'};
   font-weight: ${({ weight }) => weight || '100'};
   color: ${({ color }) => color || `${Colors.grey}`};

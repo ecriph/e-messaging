@@ -1,19 +1,96 @@
 import React from 'react';
 import {
   FlexColumnContainer,
+  FlexRowContainer,
   MainContainer,
 } from '../../internals/ui-kit/container';
-import { HeaderText1 } from '../../internals/ui-kit/text';
+import { HeaderText1, HeaderText2 } from '../../internals/ui-kit/text';
+import { PrimaryButton } from '../../internals/ui-kit/button';
+import BackArrow from '../../internals/ui-kit/back-arrow';
+import { Colors, Font } from '../../internals/ui-kit/theme';
+import { PasswordInput, PrimaryInput } from '../../internals/ui-kit/input';
+import { Formik } from 'formik';
+import { useDispatch } from 'react-redux';
+import { LOGIN_USER } from '../../redux/user/reducer';
 
 type Props = {};
+interface RegisterProps {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const RegisterScreen = (props: Props) => {
+  const [isLoading, setLoading] = React.useState();
+  const initialValues: RegisterProps = { name: '', email: '', password: '' };
+  const dispatch = useDispatch();
+
   return (
-    <MainContainer>
-      <FlexColumnContainer>
-        <HeaderText1>Register Screen</HeaderText1>
-      </FlexColumnContainer>
-    </MainContainer>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={async (values, action) => {
+        dispatch(LOGIN_USER({ userId: '123456' }));
+      }}
+    >
+      {({
+        errors,
+        handleChange,
+        handleSubmit,
+        isValid,
+        isSubmitting,
+        values,
+      }) => (
+        <MainContainer
+          BottomComponent={
+            <FlexColumnContainer mt="20px">
+              {isLoading ? (
+                <PrimaryButton
+                  onPress={() => {}}
+                  text="Loading"
+                  enabled={false}
+                />
+              ) : (
+                <PrimaryButton
+                  text="Get in"
+                  onPress={handleSubmit}
+                  enabled={isValid}
+                />
+              )}
+            </FlexColumnContainer>
+          }
+        >
+          <FlexColumnContainer justifyContent="flex-start">
+            <FlexRowContainer justifyContent="flex-start">
+              <BackArrow />
+            </FlexRowContainer>
+            <FlexColumnContainer>
+              <HeaderText2>Welcome to eChat app</HeaderText2>
+              <HeaderText1 color={Colors.grey} font={Font.Light}>
+                Register your credentials to start chatting
+              </HeaderText1>
+              <PrimaryInput
+                text="Name"
+                onChangeText={handleChange('name')}
+                value={values.email}
+                error={errors.email}
+              />
+              <PrimaryInput
+                text="Email"
+                onChangeText={handleChange('email')}
+                value={values.email}
+                error={errors.email}
+              />
+              <PasswordInput
+                text="Password"
+                onChangeText={handleChange('password')}
+                value={values.password}
+                error={errors.password}
+              />
+            </FlexColumnContainer>
+          </FlexColumnContainer>
+        </MainContainer>
+      )}
+    </Formik>
   );
 };
 

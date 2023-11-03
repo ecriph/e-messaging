@@ -7,6 +7,7 @@ export type UserState = {
   fullname: string;
   isLoggedIn: boolean;
   isUser: boolean;
+  userId: string;
 };
 
 export type UserRootState = {
@@ -20,6 +21,7 @@ const initialState: UserState = {
   fullname: '',
   isLoggedIn: false,
   isUser: false,
+  userId: '',
 };
 
 const auth = createSlice({
@@ -42,8 +44,9 @@ const auth = createSlice({
       state.isLoggedIn = false;
     },
 
-    LOGIN_USER: (state) => {
+    LOGIN_USER: (state, action) => {
       state.isLoggedIn = true;
+      state.userId = action.payload.userId;
     },
   },
 });

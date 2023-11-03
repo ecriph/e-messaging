@@ -10,8 +10,9 @@ import BackArrow from '../../internals/ui-kit/back-arrow';
 import { Colors, Font } from '../../internals/ui-kit/theme';
 import { PasswordInput, PrimaryInput } from '../../internals/ui-kit/input';
 import { Formik } from 'formik';
-import { useDispatch } from 'react-redux';
 import { LOGIN_USER } from '../../redux/user/reducer';
+import { loadMessage } from '../../redux/chat/action';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 
 type Props = {};
 interface LoginProps {
@@ -22,13 +23,18 @@ interface LoginProps {
 const LoginScreen = (props: Props) => {
   const [isLoading, setLoading] = React.useState();
   const initialValues: LoginProps = { email: '', password: '' };
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  const chat = useAppSelector((state) => state.chat);
 
   return (
     <Formik
       initialValues={initialValues}
       onSubmit={async (values, action) => {
-        dispatch(LOGIN_USER());
+        dispatch(loadMessage());
+
+        console.log(chat.chatMessage);
+
+        dispatch(LOGIN_USER({ userId: '123456' }));
       }}
     >
       {({
@@ -69,13 +75,13 @@ const LoginScreen = (props: Props) => {
               </HeaderText1>
               <PrimaryInput
                 text="Email"
-                onChangeText={() => handleChange('email')}
+                onChangeText={handleChange('email')}
                 value={values.email}
                 error={errors.email}
               />
               <PasswordInput
                 text="Password"
-                onChangeText={() => handleChange('password')}
+                onChangeText={handleChange('password')}
                 value={values.password}
                 error={errors.password}
               />
