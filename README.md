@@ -23,3 +23,7 @@ A dockerized cross-platform chat application, built with react-native and nestjs
 
 - To start project run code
   - `yarn start`
+
+### Development Status
+
+- in progress
