@@ -1,21 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { VersioningType } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const extractor = (request: Expre): string | string[] =>
-    [request.headers['custom-versioning-field'] ?? '']
-      .flatMap((v) => v.split(','))
-      .filter((v) => !!v)
-      .sort()
-      .reverse();
-
   const app = await NestFactory.create(AppModule);
-  app.enableVersioning({
-    type: VersioningType.CUSTOM,
-    extractor,
-  });
+
+  const config = new DocumentBuilder()
+    .setTitle('eChat')
+    .setDescription('eChat messaging system api')
+    .setVersion('1.0')
+    .addTag('chats')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();
