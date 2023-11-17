@@ -3,6 +3,7 @@
     "lint-staged": "^14.0.1"
   },
   "dependencies": {
+    "socket.io-client": "^4.7.2",
     "zod": "^3.22.4"
   }
 }

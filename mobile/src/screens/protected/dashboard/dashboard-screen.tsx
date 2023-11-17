@@ -16,7 +16,6 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { Divider } from '../../../internals/ui-kit/divider';
-import Tab from '../../../internals/ui-kit/tab';
 
 interface DashboardProps {}
 interface ChatProps {
