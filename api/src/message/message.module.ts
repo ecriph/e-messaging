@@ -3,7 +3,7 @@ import { MessageController } from './message.controller';
 import { PrismaClientModule } from 'src/internals/database/prisma-client.module';
 
 @Module({
-  imports: [PrismaClientModule],
   controllers: [MessageController],
+  imports: [PrismaClientModule],
 })
 export class MessageModule {}

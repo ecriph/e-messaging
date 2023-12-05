@@ -1,17 +1,28 @@
-import { Controller, Get, Injectable } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { AuthContext } from 'src/auth/auth-context';
+import { WithAuthContext } from 'src/auth/auth-context.decorator';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
 
-@Injectable()
 @Controller({ path: 'message', version: '1' })
 export class MessageController {
-  constructor(private prisma: PrismaClientService) {}
+  constructor(private readonly prisma: PrismaClientService) {}
 
-  @Get('/create')
-  async createMessage(): Promise<void> {}
+  @Get('/list/conversation')
+  async getConversations(@WithAuthContext() authContext: AuthContext) {
+    const conversation = this.prisma.getClient().conversation.findMany({
+      where: { userId: authContext.user.id },
+      include: { messages: true },
+    });
 
-  @Get('/previous/messages')
-  async previousMessage(): Promise<void> {}
+    return conversation;
+  }
 
-  @Get('/conversation/send')
-  async sendMessage(): Promise<void> {}
+  //   @Get('/list/message')
+  //   async getMessages(@WithAuthContext() authContext: AuthContext) {}
+
+  //   @Post('/create/message')
+  //   async createMessage(@WithAuthContext() authContext: AuthContext) {}
+
+  //   @Post('/create/conversation')
+  //   async createConversation(@WithAuthContext() authContext: AuthContext) {}
 }
