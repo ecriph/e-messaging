@@ -7,32 +7,35 @@ datasource mydb {
   url      = env("DATABASE_URL") // or your actual connection URL
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
-  id       Int       @id @default(autoincrement())
-  username String    @unique
-  email    String    @unique
-  password String?
+  id            Int            @id @default(autoincrement())
+  username      String         @unique
+  email         String         @unique
+  password      String
+  refresh_token String
   conversations Conversation[]
-  messages Message[]
+  messages      Message[]
+  role          UserRole
 }
 
 model Conversation {
-  id          Int       @id @default(autoincrement())
-  users       User[]    
-  messages    Message[]
+  id       String    @id @default(uuid())
+  userId   Int
+  users    User      @relation(fields: [userId], references: [id])
+  messages Message[]
 }
 
 model Message {
-  id             Int        @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   content        String
   senderId       Int
-  sender         User       @relation(fields: [senderId], references: [id])
-  conversationId Int
+  sender         User         @relation(fields: [senderId], references: [id])
+  conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id])
-  createdAt      DateTime   @default(now())
+  createdAt      DateTime     @default(now())
 }
-
-
-
-
-
