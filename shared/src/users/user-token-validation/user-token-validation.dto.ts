@@ -1,3 +1,3 @@
 export class PayloadDTO {
-  userId!: number;
+  userId!: string;
 }

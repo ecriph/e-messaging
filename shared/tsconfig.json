@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "../api/src/event/types/events.ts"],
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2017",

@@ -29,7 +29,7 @@ export class JwtService {
         return {
           message: 'expired token',
           success: false,
-          user: { id: 0, role: '' },
+          user: { id: '', role: '' },
         };
       }
 
@@ -41,7 +41,7 @@ export class JwtService {
     id,
     role,
   }: {
-    id: number;
+    id: string;
     role: UserRole;
   }): Promise<{ success: boolean; token: string }> {
     const payload = { id, role };

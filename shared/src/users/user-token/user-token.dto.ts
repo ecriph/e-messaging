@@ -1,5 +1,5 @@
 export class UserTokenDTO {
-  id!: number;
+  id!: string;
   role!: string;
 }
 
