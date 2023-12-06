@@ -1,9 +1,9 @@
 import { UserRole } from '@prisma/client';
 
 export class AuthContext {
-  user: { id: number; role: UserRole };
+  user: { id: string; role: UserRole };
 
-  constructor(params: { user: { id: number; role: UserRole } }) {
+  constructor(params: { user: { id: string; role: UserRole } }) {
     this.user = params.user;
   }
 }

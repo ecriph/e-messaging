@@ -1,5 +1,5 @@
 export class UserDTO {
-  id!: number;
+  id!: string;
   username!: string;
   email!: string;
   refresh_token!: string;
