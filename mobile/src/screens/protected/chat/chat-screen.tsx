@@ -56,7 +56,6 @@ const ChatScreen = ({ route }: Props) => {
         Alert.alert(messages.failure);
       } else {
         setChatMessage(messages.body); // Assuming messages.body is an array
-        console.log(messages.body);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -103,7 +102,6 @@ const ChatScreen = ({ route }: Props) => {
           if (messages.failure) {
             Alert.alert(messages.failure);
           } else {
-            // setChatMessage(messages.data); // Assuming messages.body is an array
             console.log(messages.data);
           }
         } catch (error) {
