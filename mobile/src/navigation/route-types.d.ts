@@ -1,10 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/ban-types
+
 export type RootStackParamList = {
   LoginScreen: undefined;
   HomeScreen: undefined;
   RegisterScreen: undefined;
   Dashboard: undefined;
-  ChatScreen: undefined;
+  ChatScreen: { conversationId: string };
   ProfileScreen: undefined;
 };
 

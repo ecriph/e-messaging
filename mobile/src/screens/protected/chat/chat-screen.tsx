@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Circle,
   FlexColumnContainer,
@@ -13,21 +13,31 @@ import BackArrow from '../../../internals/ui-kit/back-arrow';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import { useSelector } from 'react-redux';
-import socket from '../../../internals/service/socket-services';
 import { ChatRootState, LOAD_MESSAGES } from '../../../redux/chat/reducer';
 import { UserRootState } from '../../../redux/user/reducer';
 import { ChatContainer } from './use-chat-component';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { ScrollView } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
+import { RootStackParamList } from '../../../navigation/route-types';
+import { RouteProp } from '@react-navigation/native';
+import { useMainApi } from '../../../internals/api/use-main-request';
+import socket from '../../../internals/service/socket-services';
+import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 
-type Props = {};
+type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
+
+type Props = {
+  route: ChatScreenRouteProp;
+};
 interface MessageProps {
   message: string;
 }
 
-const ChatScreen = (props: Props) => {
+const ChatScreen = ({ route }: Props) => {
   const initialValues: MessageProps = { message: '' };
-  const chatMessages = useAppSelector((state: ChatRootState) => state.chat);
+  const { getRequest, postRequest } = useMainApi();
+  const { conversationId } = route.params;
+  const [chatMessage, setChatMessage] = useState<CreateChatMessageDTO[]>([]);
   const user = useAppSelector((state: UserRootState) => state.user);
   const dispatch = useAppDispatch();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -36,25 +46,71 @@ const ChatScreen = (props: Props) => {
       scrollViewRef.current.scrollToEnd({ animated: true });
     }
   };
+  const getMessages = useCallback(async () => {
+    try {
+      const messages = await getRequest(
+        '/v1/message/list/message/' + conversationId
+      );
+
+      if (messages.failure) {
+        Alert.alert(messages.failure);
+      } else {
+        setChatMessage(messages.body); // Assuming messages.body is an array
+        console.log(messages.body);
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  }, [getRequest, conversationId]);
+
+  useEffect(() => {
+    getMessages();
+  }, [getMessages]);
+
+  useEffect(() => {
+    const handleNewMessage = (message: CreateChatMessageDTO) => {
+      setChatMessage((prevMessages) => [...prevMessages, message]);
+      handleScrollToEnd();
+    };
+
+    socket.on('newMessage', handleNewMessage);
+
+    return () => {
+      // Cleanup the socket event listener when the component unmounts
+      socket.off('newMessage', handleNewMessage);
+    };
+  }, [socket, chatMessage]);
 
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values, { resetForm }) => {
-        // socket.emit('chatMessage', values.message);
-        // alert(`message ${values.message} sent`);
+      onSubmit={async (values, { resetForm }) => {
         const newMessage = {
-          id: user.userId,
-          message: values.message,
-          name: 'Prince',
-          status: 'sent',
-          date: Date.now(),
+          senderId: user.userId,
+          content: values.message,
+          createdAt: new Date(Date.now()),
         };
-        dispatch(
-          LOAD_MESSAGES({
-            chatMessage: [...chatMessages.chatMessage, newMessage],
-          })
-        );
+        const payload = {
+          content: values.message,
+          conversationId: conversationId,
+        };
+        try {
+          const messages = await postRequest(
+            '/v1/message/create/message',
+            payload
+          );
+
+          if (messages.failure) {
+            Alert.alert(messages.failure);
+          } else {
+            // setChatMessage(messages.data); // Assuming messages.body is an array
+            console.log(messages.data);
+          }
+        } catch (error) {
+          console.error('Error fetching messages:', error);
+        }
+
+        setChatMessage([...chatMessage, newMessage]);
         handleScrollToEnd();
         resetForm();
       }}
@@ -62,7 +118,11 @@ const ChatScreen = (props: Props) => {
       {({ errors, handleChange, handleSubmit, values }) => (
         <MainContainer
           BottomComponent={
-            <FlexRowContainer align="center" justifyContent="space-between">
+            <FlexRowContainer
+              padTop="20px"
+              align="center"
+              justifyContent="space-between"
+            >
               <PrimaryInput
                 style={{ width: '80%' }}
                 text=""
@@ -77,29 +137,42 @@ const ChatScreen = (props: Props) => {
             </FlexRowContainer>
           }
         >
-          <FlexColumnContainer>
-            <FlexRowContainer justifyContent="space-between">
+          <FlexColumnContainer mt="40px">
+            <FlexRowContainer justifyContent="space-between" mb="20px">
               <FlexColumnContainer>
                 <FlexRowContainer justifyContent="space-between" align="center">
                   <BackArrow />
-                  <Circle width="24px" height="24px" bg={Colors.offwhite}>
+                  <Circle
+                    ml="10px"
+                    width="24px"
+                    height="24px"
+                    bg={Colors.offwhite}
+                  >
                     <FontAwesome
                       name="user-circle-o"
                       size={24}
                       color={Colors.grey}
                     />
                   </Circle>
-                  <HeaderText1 font={Font.Medium} ml="10px">
+                  <HeaderText1 font={Font.Medium} ml="15px">
                     Username
                   </HeaderText1>
                 </FlexRowContainer>
               </FlexColumnContainer>
               <FlexColumnContainer>
-                <Ionicons name="call-outline" size={24} color="black" />
+                {/* <Ionicons name="call-outline" size={24} color="black" /> */}
               </FlexColumnContainer>
             </FlexRowContainer>
             <ScrollView ref={scrollViewRef}>
-              <ChatContainer chatMessage={chatMessages} id={user.userId} />
+              {chatMessage.length == 0 ? (
+                <FlexColumnContainer align="center">
+                  <HeaderText1 font={Font.Light} fontSize={FontSize.header2}>
+                    No messages yet with user
+                  </HeaderText1>
+                </FlexColumnContainer>
+              ) : (
+                <ChatContainer chatMessage={chatMessage} id={user.userId} />
+              )}
             </ScrollView>
           </FlexColumnContainer>
         </MainContainer>

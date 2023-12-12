@@ -1,13 +1,13 @@
+import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 import {
   FlexColumnContainer,
   FlexRowContainer,
   FlexRowRecieveChat,
   FlexRowSendChat,
 } from '../../../internals/ui-kit/container';
-import { HeaderText1 } from '../../../internals/ui-kit/text';
+import { HeaderText1, SmallText } from '../../../internals/ui-kit/text';
 import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
 import { useTimeFormat } from '../../../internals/utils/use-date-time';
-import { ChatState } from '../../../redux/chat/reducer';
 
 const ReceiverMessage = ({
   text,
@@ -15,16 +15,11 @@ const ReceiverMessage = ({
   name,
 }: {
   text: string;
-  date: number;
+  date: Date;
   name: string;
 }) => {
   return (
     <FlexColumnContainer>
-      <FlexRowContainer justifyContent="flex-start">
-        <HeaderText1 font={Font.Medium} color={Colors.grey}>
-          {name}
-        </HeaderText1>
-      </FlexRowContainer>
       <FlexRowRecieveChat
         align="center"
         justifyContent="flex-start"
@@ -53,16 +48,11 @@ const SenderMesssage = ({
   name,
 }: {
   text: string;
-  date: number;
+  date: Date;
   name: string;
 }) => {
   return (
     <FlexColumnContainer>
-      <FlexRowContainer justifyContent="flex-end">
-        <HeaderText1 font={Font.Medium} color={Colors.grey}>
-          {name}
-        </HeaderText1>
-      </FlexRowContainer>
       <FlexRowSendChat
         align="center"
         justifyContent="flex-end"
@@ -90,41 +80,36 @@ const ChatContainer = ({
   chatMessage,
   id,
 }: {
-  chatMessage: ChatState;
+  chatMessage: CreateChatMessageDTO[];
   id: string;
 }) => {
-  const messages = chatMessage.chatMessage;
   return (
     <>
-      {messages.length === 0 ? (
-        <FlexColumnContainer align="center">
-          <HeaderText1 font={Font.Light} fontSize={FontSize.small}>
-            No messages yet with user
-          </HeaderText1>
-        </FlexColumnContainer>
-      ) : (
-        messages.map((message, index: number) => (
+      {chatMessage.map((message, index: number) => {
+        const isOwnMessage = message.senderId === id;
+
+        return (
           <FlexColumnContainer key={index}>
-            {message.id === id ? (
+            {isOwnMessage ? (
               <FlexRowContainer justifyContent="flex-end">
                 <SenderMesssage
-                  text={message.message}
+                  text={message.content}
                   name="You"
-                  date={message.date}
+                  date={message.createdAt}
                 />
               </FlexRowContainer>
             ) : (
               <FlexRowContainer justifyContent="flex-start">
                 <ReceiverMessage
-                  text={message.message}
-                  name={message.name}
-                  date={message.date}
+                  text={message.content}
+                  name={message.senderId}
+                  date={message.createdAt}
                 />
               </FlexRowContainer>
             )}
           </FlexColumnContainer>
-        ))
-      )}
+        );
+      })}
     </>
   );
 };

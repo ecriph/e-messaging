@@ -167,7 +167,7 @@ export const PasswordInput: React.FC<InputFieldProps> = ({
           onBlur={onBlur}
         />
         <PressableContainer onPress={() => setHidePassword(!hidePassword)}>
-          <EntypoIcon name="eye" size={24} color="black" />
+          <EntypoIcon name="eye" size={18} color={Colors.grey} />
         </PressableContainer>
       </TextInputWrapper>
       <NormalText color={Colors.error}>{error}</NormalText>

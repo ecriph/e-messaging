@@ -9,6 +9,7 @@ interface TextProps {
   ml?: string;
   mt?: string;
   mb?: string;
+  mr?: string;
   fontSize?: number;
   margin?: number;
   align?: 'left' | 'right' | 'center';
@@ -21,6 +22,8 @@ export const HeaderText1 = styled.Text<TextProps>`
   font-family: ${({ font }) => font || `${Font.Bold}`};
   margin-top: ${({ mt }) => mt || '0px'};
   margin-left: ${({ ml }) => ml || '0px'};
+  margin-bottom: ${({ mb }) => mb || '0px'};
+  margin-right: ${({ mr }) => mr || '0px'};
 `;
 
 export const HeaderText2 = styled.Text<TextProps>`
@@ -31,6 +34,7 @@ export const HeaderText2 = styled.Text<TextProps>`
   font-family: ${({ font }) => font || `${Font.Regular}`};
   margin-top: ${({ mt }) => mt || '0px'};
   margin-top: ${({ mb }) => mb || '0px'};
+  margin-right: ${({ mr }) => mr || '0px'};
 `;
 
 export const HeaderText3 = styled.Text<TextProps>`

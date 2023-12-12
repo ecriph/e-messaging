@@ -54,47 +54,48 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
     );
 
-    const authTokenIdValidationResult = AuthTokenSchema.safeParse(
-      request.header('authorization'),
-    );
-
-    if (!authTokenIdValidationResult.success) {
-      throw new UnauthorizedException();
-    }
-
-    const authToken = authTokenIdValidationResult.data;
-
-    if (authToken) {
-      const decodedIdToken = await (async () => {
-        try {
-          return await this.jwtService.verifyToken(authToken);
-        } catch (err) {
-          throw new UnauthorizedException();
-        }
-      })();
-
-      if (!decodedIdToken.success) {
-        throw new UnauthorizedException();
-      }
-
-      await this.prismaClient.getClient().$transaction(async (tx) => {
-        const user = await tx.user.findFirst({
-          where: { id: decodedIdToken.user.id },
-        });
-
-        if (!user) {
-          throw new UnauthorizedException();
-        } else {
-          request.authContext = new AuthContext({
-            user: { id: user.id, role: user.role },
-          });
-        }
-      });
-    }
-
     if (isPublic) {
       return true;
     } else {
+      const authTokenIdValidationResult = AuthTokenSchema.safeParse(
+        request.header('authorization'),
+      );
+
+      if (!authTokenIdValidationResult.success) {
+        throw new UnauthorizedException();
+      }
+
+      const authToken = authTokenIdValidationResult.data;
+
+      if (authToken) {
+        const decodedIdToken = await (async () => {
+          try {
+            return await this.jwtService.verifyToken(authToken);
+          } catch (err) {
+            throw new UnauthorizedException('Token-expired');
+          }
+        })();
+
+        if (!decodedIdToken.success) {
+          throw new UnauthorizedException('Token failed');
+        }
+
+        await this.prismaClient.getClient().$transaction(async (tx) => {
+          const user = await tx.user.findFirst({
+            where: { id: decodedIdToken.user.id },
+          });
+
+          if (!user) {
+            throw new UnauthorizedException();
+          } else {
+            request.authContext = new AuthContext({
+              user: { id: user.id, role: user.role },
+            });
+          }
+        });
+      } else {
+        throw new UnauthorizedException('What happened here');
+      }
       if (request.authContext) {
         const rolesMetadata = this.reflector.get<RouteRolesMetadata>(
           ROUTE_ROLES_METADATA_KEY,
@@ -116,7 +117,7 @@ export class AuthGuard implements CanActivate {
 
         return true;
       } else {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('public error');
       }
     }
   }

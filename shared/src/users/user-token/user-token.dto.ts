@@ -4,7 +4,6 @@ export class UserTokenDTO {
 }
 
 export class UserAuthTokenDTO {
-  token!: string;
   refreshToken!: string;
 }
 

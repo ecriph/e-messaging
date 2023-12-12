@@ -107,6 +107,7 @@ interface FlexRowProps {
   bg?: string;
   br?: string;
   height?: string;
+  padTop?: string;
 }
 export const PressableContainer = styled.Pressable<PressableContainerProps>`
   padding: ${({ padding }) => padding || '0px'};
@@ -123,6 +124,7 @@ export const FlexRowContainer = styled.View<FlexRowProps>`
   align-items: ${({ align }) => align || 'stretch'};
   width: ${({ width }) => width || 'auto'};
   background-color: ${({ bg }) => bg || ''};
+  padding-top: ${({ padTop }) => padTop || ''};
 `;
 export const FlexRowRecieveChat = styled.View<FlexRowProps>`
   display: flex;

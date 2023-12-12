@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import useCatchResource from './src/internals/utils/use-catch-resource';
 import Loading from './src/internals/ui-kit/loading';
+import React from 'react';
 
 export default function App() {
   const isReady = useCatchResource(store);
