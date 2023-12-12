@@ -1,12 +1,12 @@
 export class UserRegisterDTO {
-  username!: string;
+  fullname!: string;
   password!: string;
   phone!: string;
   email!: string;
 }
 
 export class UserRegisterResponseDTO {
-  success!: boolean;
   token!: string;
   refresh_token!: string;
+  userId!: string;
 }

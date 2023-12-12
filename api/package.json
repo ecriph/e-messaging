@@ -35,6 +35,7 @@
     "@prisma/client": "^5.0.0",
     "@types/uuid": "^9.0.1",
     "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.5.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.3",
     "jsonwebtoken": "^9.0.2",

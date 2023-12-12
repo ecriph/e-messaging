@@ -1,4 +1,5 @@
 {
+  "include": ["src", "../shared/src"],   
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
@@ -6,6 +7,9 @@
     "esModuleInterop": true,
     "jsx": "react-native",
     "module": "commonjs",
-    "target": "es6"
-  }
+    "target": "es6",
+    "paths": {
+      "@/shared/*": ["../shared/src/*"]
+    },
+  } 
 }

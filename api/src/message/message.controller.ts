@@ -18,7 +18,7 @@ const lastMessage = (conversation: Conversation & { messages: Message[] }) => {
     messages:
       conversation.messages.length > 0
         ? conversation.messages[conversation.messages.length - 1]
-        : null,
+        : [],
   };
 };
 
@@ -30,12 +30,16 @@ export class MessageController {
   ) {}
 
   @Get('/list/users')
-  async getUsers() {
+  async getUsers(@WithAuthContext() authContext: AuthContext) {
     const users = await this.prisma.getClient().user.findMany({
       include: { messages: true, conversations: true },
     });
 
-    return users;
+    const filteredUsers = users.filter(
+      (user) => user.id !== authContext.user.id,
+    );
+
+    return filteredUsers;
   }
   @Get('/list/conversation')
   async getConversations(@WithAuthContext() authContext: AuthContext) {
@@ -61,12 +65,8 @@ export class MessageController {
   ) {
     const getMessages = await this.prisma.getClient().message.findMany({
       where: {
-        AND: [
-          { senderId: authContext.user.id },
-          { conversationId: listMessage.conversationId },
-        ],
+        conversationId: listMessage.conversationId,
       },
-      include: { conversation: true },
     });
 
     return getMessages;

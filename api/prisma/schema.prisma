@@ -14,7 +14,7 @@ enum UserRole {
 
 model User {
   id            String         @id @default(uuid())
-  username      String         @unique
+  fullname      String
   email         String         @unique
   password      String
   refresh_token String

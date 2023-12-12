@@ -26,11 +26,7 @@ export class JwtService {
       };
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
-        return {
-          message: 'expired token',
-          success: false,
-          user: { id: '', role: '' },
-        };
+        throw new UnauthorizedException('Token-expired');
       }
 
       throw new UnauthorizedException('Invalid token');

@@ -10,7 +10,6 @@ import { EventModule } from './event/event.module';
 
 @Module({
   imports: [LoggingModule, AuthModule, MessageModule, EventModule],
-  controllers: [],
   providers: [
     {
       provide: APP_FILTER,

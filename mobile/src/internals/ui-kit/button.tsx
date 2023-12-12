@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { Colors } from './theme';
+import { Colors, Font } from './theme';
 import { HeaderText2, NormalText } from './text';
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -80,7 +80,11 @@ export const PrimaryButton: React.FC<OnPressButtonProps> = ({
   };
   return (
     <Primary onPress={onBtnPress} disabled={!enabled} enabled={enabled}>
-      <HeaderText2 weight="600" color={Colors.buttons.primary.color}>
+      <HeaderText2
+        font={Font.SemiBold}
+        weight="600"
+        color={Colors.buttons.primary.color}
+      >
         {text}
       </HeaderText2>
     </Primary>

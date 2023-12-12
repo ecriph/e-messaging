@@ -33,7 +33,7 @@ const auth = createSlice({
     // doesn't actually mutate the state because it uses the Immer library,
     // which detects changes to a "draft state" and produces a brand new
     // immutable state based off those changes
-    LOGIN_SUCCESS: (state, action: PayloadAction<UserState>) => {
+    LOGIN_SUCCESS: (state, action) => {
       (state.email = action.payload.email),
         (state.fullname = action.payload.fullname),
         (state.phone = action.payload.phone),
@@ -44,13 +44,20 @@ const auth = createSlice({
       state.isLoggedIn = false;
     },
 
+    SAVE_PERSONAL: (state, action) => {
+      state.fullname = action.payload.fullname;
+      state.email = action.payload.email;
+    },
+
     LOGIN_USER: (state, action) => {
       state.isLoggedIn = true;
+      state.fullname = action.payload.fullname;
       state.userId = action.payload.userId;
     },
   },
 });
 
-export const { LOGIN_SUCCESS, LOGOUT_USER, LOGIN_USER } = auth.actions;
+export const { LOGIN_SUCCESS, LOGOUT_USER, LOGIN_USER, SAVE_PERSONAL } =
+  auth.actions;
 
 export default auth.reducer;
