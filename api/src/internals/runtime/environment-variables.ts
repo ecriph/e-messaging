@@ -1,8 +1,14 @@
 import { z } from 'zod';
 
+const APP_ENV = process.env.APP_ENV;
+
 const schema = z
   .object({
-    LOG_DEBUG: z
+    PORT:
+      APP_ENV === 'local'
+        ? z.union([z.undefined(), z.coerce.number().optional()])
+        : z.coerce.number(),
+    LOG_DEBUG: z.coerce
       .boolean()
       .optional()
       .transform((v) => {
