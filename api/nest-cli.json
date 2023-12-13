@@ -6,6 +6,6 @@
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"]
   },
-  "entryFile": "api/src/main"
+  "entryFile": "dist/main"
 }
- 
+

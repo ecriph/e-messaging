@@ -15,7 +15,7 @@
     "dev:prisma:generate-client": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "start:prod": "node api/src/main",
+    "start:prod": "node dist/main",
     "lint": "eslint src",
     "test": "jest",
     "test:watch": "jest --watch",
