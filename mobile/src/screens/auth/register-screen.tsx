@@ -62,7 +62,7 @@ const RegisterScreen = (props: Props) => {
             </FlexColumnContainer>
           }
         >
-          <FlexColumnContainer justifyContent="flex-start" mt="20px">
+          <FlexColumnContainer justifyContent="flex-start" mt="40px">
             <FlexRowContainer justifyContent="flex-start">
               <BackArrow />
             </FlexRowContainer>
