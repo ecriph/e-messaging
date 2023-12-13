@@ -1,0 +1,1 @@
+{"version":3,"file":"create-message.schemas.js","sourceRoot":"","sources":["../../../../../../shared/src/messages/create-message/create-message.schemas.ts"],"names":[],"mappings":";;;AAAA,6BAAgC;AAGnB,QAAA,mBAAmB,GAA6B,OAAC,CAAC,MAAM,CAAC;IACpE,OAAO,EAAE,OAAC,CAAC,MAAM,EAAE;IACnB,cAAc,EAAE,OAAC,CAAC,MAAM,EAAE;CAC3B,CAAC,CAAC"}
