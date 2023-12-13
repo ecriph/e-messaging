@@ -27,6 +27,7 @@ export const RegisterSecurity = () => {
     <Formik
       initialValues={initialValues}
       onSubmit={async (values, { setErrors }) => {
+        setLoading(true);
         const payload = {
           fullname: user.fullname,
           password: values.password,
@@ -82,7 +83,7 @@ export const RegisterSecurity = () => {
             </FlexColumnContainer>
           }
         >
-          <FlexColumnContainer mt="26px">
+          <FlexColumnContainer mt="45px">
             <PhoneNumberInput
               value={values.phone}
               onChangeText={handleChange('phone')}
