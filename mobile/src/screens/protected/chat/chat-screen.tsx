@@ -4,6 +4,7 @@ import {
   FlexColumnContainer,
   FlexRowContainer,
   MainContainer,
+  PressableContainer,
 } from '../../../internals/ui-kit/container';
 import { HeaderText1 } from '../../../internals/ui-kit/text';
 import { PrimaryInput } from '../../../internals/ui-kit/input';
@@ -17,12 +18,13 @@ import { ChatRootState, LOAD_MESSAGES } from '../../../redux/chat/reducer';
 import { UserRootState } from '../../../redux/user/reducer';
 import { ChatContainer } from './use-chat-component';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { Alert, ScrollView } from 'react-native';
+import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
 import { RouteProp } from '@react-navigation/native';
 import { useMainApi } from '../../../internals/api/use-main-request';
 import socket from '../../../internals/service/socket-services';
 import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
+import { ScrollView } from 'react-native-gesture-handler';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -135,7 +137,7 @@ const ChatScreen = ({ route }: Props) => {
             </FlexRowContainer>
           }
         >
-          <FlexColumnContainer mt="40px">
+          <FlexColumnContainer mt="70px">
             <FlexRowContainer justifyContent="space-between" mb="20px">
               <FlexColumnContainer>
                 <FlexRowContainer justifyContent="space-between" align="center">
@@ -161,17 +163,22 @@ const ChatScreen = ({ route }: Props) => {
                 {/* <Ionicons name="call-outline" size={24} color="black" /> */}
               </FlexColumnContainer>
             </FlexRowContainer>
-            <ScrollView ref={scrollViewRef}>
-              {chatMessage.length == 0 ? (
-                <FlexColumnContainer align="center">
-                  <HeaderText1 font={Font.Light} fontSize={FontSize.header2}>
-                    No messages yet with user
-                  </HeaderText1>
-                </FlexColumnContainer>
-              ) : (
-                <ChatContainer chatMessage={chatMessage} id={user.userId} />
-              )}
-            </ScrollView>
+            <PressableContainer>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                ref={scrollViewRef}
+              >
+                {chatMessage.length == 0 ? (
+                  <FlexColumnContainer align="center">
+                    <HeaderText1 font={Font.Light} fontSize={FontSize.header2}>
+                      No messages yet with user
+                    </HeaderText1>
+                  </FlexColumnContainer>
+                ) : (
+                  <ChatContainer chatMessage={chatMessage} id={user.userId} />
+                )}
+              </ScrollView>
+            </PressableContainer>
           </FlexColumnContainer>
         </MainContainer>
       )}

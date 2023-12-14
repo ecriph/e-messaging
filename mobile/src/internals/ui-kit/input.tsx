@@ -10,7 +10,6 @@ import {
 } from './text';
 import { useState } from 'react';
 import { Entypo } from '@expo/vector-icons';
-import CheckBox from '@react-native-community/checkbox';
 
 interface InputWrapProps {
   height?: string;
@@ -252,19 +251,6 @@ export const PhoneNumberInput: React.FC<InputFieldProps> = ({
           ''
         )}
       </FlexRowContainer>
-    </Container>
-  );
-};
-
-export const PrimaryCheckbox: React.FC<InputFieldProps> = ({
-  text,
-  checked,
-  onValueChange,
-}) => {
-  return (
-    <Container>
-      <CheckBox value={checked} onValueChange={onValueChange} />
-      <HeaderText1>{text}</HeaderText1>
     </Container>
   );
 };

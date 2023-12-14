@@ -1,3 +1,5 @@
+import 'expo-dev-client';
+import React from 'react';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from './src/redux/store';
 import Navigation from './src/navigation/index-screen';
@@ -6,13 +8,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import useCatchResource from './src/internals/utils/use-catch-resource';
-import Loading from './src/internals/ui-kit/loading';
-import React from 'react';
+// import Loading from './src/internals/ui-kit/loading';
 
 export default function App() {
   const isReady = useCatchResource(store);
 
-  if (!isReady) return <Loading />;
+  if (!isReady) return <></>;
 
   return (
     <Provider store={store}>
