@@ -11,6 +11,7 @@ import { TransportFailure } from '../../internals/transport/transport-failure';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { LOGIN_USER } from '../../redux/user/reducer';
+import * as Yup from 'yup';
 
 interface RegisterProps {
   phone: string;
@@ -23,9 +24,16 @@ export const RegisterSecurity = () => {
   const user = useAppSelector((state) => state.user);
   const [isLoading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+
+  const SecureValidation = Yup.object().shape({
+    phone: Yup.string().min(11).required('*required'),
+    password: Yup.string().min(6).required('*required'),
+  });
+
   return (
     <Formik
       initialValues={initialValues}
+      validationSchema={SecureValidation}
       onSubmit={async (values, { setErrors }) => {
         setLoading(true);
         const payload = {

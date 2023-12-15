@@ -5,14 +5,14 @@ import { CreateMessageSchema } from '@/shared/messages/create-message/create-mes
 import { ListMessageDTO } from '@/shared/messages/list-message/list-message.dto';
 import { ListMessageSchema } from '@/shared/messages/list-message/list-message.schemas';
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { Conversation, Message } from '@prisma/client';
+import { Conversation, Message, User } from '@prisma/client';
 import { AuthContext } from 'src/auth/auth-context';
 import { WithAuthContext } from 'src/auth/auth-context.decorator';
 import { EventGateway } from 'src/event/event.gateway';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
 import { ValidationPipe } from 'src/internals/validation/validation.pipe';
 
-const lastMessage = (conversation: Conversation & { messages: Message[] }) => {
+function lastMessage(conversation: Conversation & { messages: Message[] }) {
   return {
     ...conversation,
     messages:
@@ -20,7 +20,12 @@ const lastMessage = (conversation: Conversation & { messages: Message[] }) => {
         ? conversation.messages[conversation.messages.length - 1]
         : [],
   };
-};
+}
+
+function getUserNameRow(names: User[], userId: string) {
+  const filteredName = names.find((user) => user.id === userId);
+  return filteredName ? filteredName.fullname : '';
+}
 
 @Controller({ path: 'message', version: '1' })
 export class MessageController {
@@ -97,14 +102,53 @@ export class MessageController {
     @Body(new ValidationPipe(CreateConversationSchema))
     createConversation: createConversationDTO,
   ) {
-    const conversation = await this.prisma.getClient().conversation.create({
-      data: {
-        userId: authContext.user.id,
-        recipientId: createConversation.recipientId,
-      },
-      include: { messages: true },
-    });
+    return this.prisma.getClient().$transaction(async (tx) => {
+      const checkDuplicate = await tx.conversation.findFirst({
+        where: {
+          OR: [
+            {
+              userId: authContext.user.id,
+              recipientId: createConversation.recipientId,
+            },
+            {
+              userId: createConversation.recipientId,
+              recipientId: authContext.user.id,
+            },
+          ],
+        },
+        include: { messages: true },
+      });
 
-    return conversation;
+      if (checkDuplicate) {
+        return checkDuplicate;
+      }
+
+      const getNames = await tx.user.findMany({
+        where: {
+          OR: [
+            { id: authContext.user.id },
+            { id: createConversation.recipientId },
+          ],
+        },
+      });
+
+      const userName = getUserNameRow(getNames, authContext.user.id);
+      const recipientName = getUserNameRow(
+        getNames,
+        createConversation.recipientId,
+      );
+
+      const conversation = await tx.conversation.create({
+        data: {
+          userId: authContext.user.id,
+          recipientId: createConversation.recipientId,
+          recipientName: recipientName,
+          userName: userName,
+        },
+        include: { messages: true },
+      });
+
+      return conversation;
+    });
   }
 }

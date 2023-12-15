@@ -4,4 +4,5 @@ export declare class MessageDTO {
     senderId: string;
     conversationId: string;
     createdAt: Date;
+    updatedAt: Date;
 }

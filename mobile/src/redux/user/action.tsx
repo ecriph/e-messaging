@@ -1,5 +1,6 @@
 import asyncStorage from '@react-native-async-storage/async-storage';
 import { LOGIN_SUCCESS, LOGOUT_USER, LOGIN_USER } from './reducer';
+import { useMainApi } from '../../internals/api/use-main-request';
 
 export const logout =
   () =>
@@ -10,4 +11,7 @@ export const logout =
     asyncStorage.clear();
   };
 
-export const confirmToken = (token: string) => () => {};
+export const confirmToken = (token: string) => async () => {
+  //  const {getRequest} = useMainApi()
+  //  const response = await getRequest('/auth/token/')
+};

@@ -16,11 +16,13 @@ import {
 import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { Divider } from '../../../internals/ui-kit/divider';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Category } from '../../../internals/data/conversation';
 import { FontAwesome } from '@expo/vector-icons';
 import { ChatList } from './use-dashboard-chat-list';
 import { UsersList } from './use-dashboard-user-list';
+import { LOGOUT_USER } from '../../../redux/user/reducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface DashboardProps {}
 
@@ -40,6 +42,7 @@ enum CategoryList {
 const DashboardScreen = (props: DashboardProps) => {
   const [selected, setSelected] = useState<string>(CategoryList.CHATS);
   const user = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
 
   const navigation =
     useNavigation<NavigationProp<ReactNavigation.RootParamList>>();
@@ -51,11 +54,14 @@ const DashboardScreen = (props: DashboardProps) => {
         </FlexColumnContainer>
         <FlexColumnContainer>
           <PressableContainer
-            onPress={() => navigation.navigate('ProfileScreen')}
+            onPress={() => {
+              dispatch(LOGOUT_USER());
+              AsyncStorage.clear();
+            }}
           >
-            <Circle width="24px" height="24px" bg={Colors.offwhite}>
-              <FontAwesome name="user-circle-o" size={24} color={Colors.grey} />
-            </Circle>
+            <SmallText fontSize={12} color={Colors.error} font={Font.SemiBold}>
+              Logout
+            </SmallText>
           </PressableContainer>
         </FlexColumnContainer>
       </FlexRowContainer>

@@ -25,7 +25,7 @@ export default function HomeScreen() {
       bgColor={Colors.black}
       BottomComponent={
         <>
-          <FlexColumnContainer mt="40px">
+          <FlexColumnContainer mt="30px">
             <HeaderText4 color={Colors.white} weight="800">
               eChat
             </HeaderText4>

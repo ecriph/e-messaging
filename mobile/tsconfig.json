@@ -1,15 +1,13 @@
 {
-  "include": ["src", "../shared/src"],   
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true,
-    "allowJs": true,
-    "esModuleInterop": true,
-    "jsx": "react-native",
-    "module": "commonjs",
-    "target": "es6",
     "paths": {
       "@/shared/*": ["../shared/src/*"]
     },
-  } 
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
+    "lib": ["ESNext"]
+  },
+  "extends": "expo/tsconfig.base",
+  "include": ["src", "App.tsx", "globals.d.ts", "../shared/src"]
 }

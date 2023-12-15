@@ -26,11 +26,15 @@ const auth_context_decorator_1 = require("../auth/auth-context.decorator");
 const event_gateway_1 = require("../event/event.gateway");
 const prisma_client_service_1 = require("../internals/database/prisma-client.service");
 const validation_pipe_1 = require("../internals/validation/validation.pipe");
-const lastMessage = (conversation) => {
+function lastMessage(conversation) {
     return Object.assign(Object.assign({}, conversation), { messages: conversation.messages.length > 0
             ? conversation.messages[conversation.messages.length - 1]
             : [] });
-};
+}
+function getUserNameRow(names, userId) {
+    const filteredName = names.find((user) => user.id === userId);
+    return filteredName ? filteredName.fullname : '';
+}
 let MessageController = class MessageController {
     constructor(prisma, event) {
         this.prisma = prisma;
@@ -76,14 +80,46 @@ let MessageController = class MessageController {
         return message;
     }
     async createConversation(authContext, createConversation) {
-        const conversation = await this.prisma.getClient().conversation.create({
-            data: {
-                userId: authContext.user.id,
-                recipientId: createConversation.recipientId,
-            },
-            include: { messages: true },
+        return this.prisma.getClient().$transaction(async (tx) => {
+            const checkDuplicate = await tx.conversation.findFirst({
+                where: {
+                    OR: [
+                        {
+                            userId: authContext.user.id,
+                            recipientId: createConversation.recipientId,
+                        },
+                        {
+                            userId: createConversation.recipientId,
+                            recipientId: authContext.user.id,
+                        },
+                    ],
+                },
+                include: { messages: true },
+            });
+            if (checkDuplicate) {
+                return checkDuplicate;
+            }
+            const getNames = await tx.user.findMany({
+                where: {
+                    OR: [
+                        { id: authContext.user.id },
+                        { id: createConversation.recipientId },
+                    ],
+                },
+            });
+            const userName = getUserNameRow(getNames, authContext.user.id);
+            const recipientName = getUserNameRow(getNames, createConversation.recipientId);
+            const conversation = await tx.conversation.create({
+                data: {
+                    userId: authContext.user.id,
+                    recipientId: createConversation.recipientId,
+                    recipientName: recipientName,
+                    userName: userName,
+                },
+                include: { messages: true },
+            });
+            return conversation;
         });
-        return conversation;
     }
 };
 exports.MessageController = MessageController;
