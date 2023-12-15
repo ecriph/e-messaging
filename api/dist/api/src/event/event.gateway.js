@@ -13,8 +13,25 @@ exports.EventGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
 const socket_io_1 = require("socket.io");
 let EventGateway = class EventGateway {
+    constructor() {
+        this.connectedUsers = new Set();
+        this.unreadMessageCounts = new Map();
+    }
     sendMessage(message) {
         this.server.emit('newMessage', message);
+    }
+    handleMessage(client, payload) {
+        const { convoId } = payload;
+        this.updateUnreadMessageCount(convoId);
+        this.sendUnreadMessageCount(convoId);
+    }
+    updateUnreadMessageCount(userId) {
+        const currentCount = this.unreadMessageCounts.get(userId) || 0;
+        this.unreadMessageCounts.set(userId, currentCount + 1);
+    }
+    sendUnreadMessageCount(userId) {
+        const unreadCount = this.unreadMessageCounts.get(userId) || 0;
+        this.server.to(userId).emit('unreadMessageCount', { count: unreadCount });
     }
 };
 exports.EventGateway = EventGateway;

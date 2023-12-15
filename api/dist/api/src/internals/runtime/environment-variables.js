@@ -2,9 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnvironmentVariables = void 0;
 const zod_1 = require("zod");
+const APP_ENV = process.env.APP_ENV;
 const schema = zod_1.z
     .object({
-    LOG_DEBUG: zod_1.z
+    PORT: APP_ENV === 'local'
+        ? zod_1.z.union([zod_1.z.undefined(), zod_1.z.coerce.number().optional()])
+        : zod_1.z.coerce.number(),
+    LOG_DEBUG: zod_1.z.coerce
         .boolean()
         .optional()
         .transform((v) => {

@@ -9,6 +9,9 @@ export declare class ConversationResponseListDTO {
     id: string;
     userId: string;
     recipientId: string;
+    recipientName: string;
+    userName: string;
     messages: MessageDTO;
     createdAt: Date;
+    updatedAt: Date;
 }

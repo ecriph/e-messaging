@@ -13,6 +13,7 @@ import { Formik } from 'formik';
 import { SAVE_PERSONAL } from '../../redux/user/reducer';
 import { RegisterSecurity } from './use-register-security';
 import { useAppDispatch } from '../../redux/hooks';
+import * as Yup from 'yup';
 
 type Props = {};
 interface RegisterProps {
@@ -26,9 +27,15 @@ const RegisterScreen = (props: Props) => {
   const initialValues: RegisterProps = { name: '', email: '' };
   const dispatch = useAppDispatch();
 
+  const RegisterValidation = Yup.object().shape({
+    name: Yup.string().required('*required'),
+    email: Yup.string().email('invalid email').required('*required'),
+  });
+
   return !security ? (
     <Formik
       initialValues={initialValues}
+      validationSchema={RegisterValidation}
       onSubmit={(values) => {
         setLoading(true);
         dispatch(SAVE_PERSONAL({ fullname: values.name, email: values.email }));
@@ -62,7 +69,7 @@ const RegisterScreen = (props: Props) => {
             </FlexColumnContainer>
           }
         >
-          <FlexColumnContainer justifyContent="flex-start" mt="40px">
+          <FlexColumnContainer justifyContent="flex-start" mt="30px">
             <FlexRowContainer justifyContent="flex-start">
               <BackArrow />
             </FlexRowContainer>

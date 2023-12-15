@@ -22,9 +22,10 @@ import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
 import { RouteProp } from '@react-navigation/native';
 import { useMainApi } from '../../../internals/api/use-main-request';
-import socket from '../../../internals/service/socket-services';
+// import socket from '../../../internals/service/socket-services';
 import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 import { ScrollView } from 'react-native-gesture-handler';
+import useWebSocket from './use-socket';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -38,11 +39,13 @@ interface MessageProps {
 const ChatScreen = ({ route }: Props) => {
   const initialValues: MessageProps = { message: '' };
   const { getRequest, postRequest } = useMainApi();
-  const { conversationId } = route.params;
+  const { conversationId, username } = route.params;
   const [chatMessage, setChatMessage] = useState<CreateChatMessageDTO[]>([]);
   const user = useAppSelector((state: UserRootState) => state.user);
   const dispatch = useAppDispatch();
   const scrollViewRef = useRef<ScrollView>(null);
+  const [typing, setTyping] = useState<string>();
+  const [count, setUnreadCount] = useState<string>();
   const handleScrollToEnd = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollToEnd({ animated: true });
@@ -68,19 +71,30 @@ const ChatScreen = ({ route }: Props) => {
     getMessages();
   }, [getMessages]);
 
-  useEffect(() => {
-    const handleNewMessage = (message: CreateChatMessageDTO) => {
-      setChatMessage((prevMessages) => [...prevMessages, message]);
+  useWebSocket(
+    user.userId,
+    (myMessage: CreateChatMessageDTO) => {
+      setChatMessage((prevMessages) => [...prevMessages, myMessage]);
       handleScrollToEnd();
-    };
+    },
+    (status) => {
+      setTyping(status);
+    }
+  );
 
-    socket.on('newMessage', handleNewMessage);
+  // useEffect(() => {
+  //   const handleNewMessage = (message: CreateChatMessageDTO) => {
+  //     setChatMessage((prevMessages) => [...prevMessages, message]);
+  //     handleScrollToEnd();
+  //   };
 
-    return () => {
-      // Cleanup the socket event listener when the component unmounts
-      socket.off('newMessage', handleNewMessage);
-    };
-  }, [socket, chatMessage]);
+  //   socket.on('newMessage', handleNewMessage);
+
+  //   return () => {
+  //     // Cleanup the socket event listener when the component unmounts
+  //     socket.off('newMessage', handleNewMessage);
+  //   };
+  // }, [socket, chatMessage]);
 
   return (
     <Formik
@@ -137,25 +151,14 @@ const ChatScreen = ({ route }: Props) => {
             </FlexRowContainer>
           }
         >
-          <FlexColumnContainer mt="70px">
+          <FlexColumnContainer mt="40px">
             <FlexRowContainer justifyContent="space-between" mb="20px">
               <FlexColumnContainer>
                 <FlexRowContainer justifyContent="space-between" align="center">
                   <BackArrow />
-                  <Circle
-                    ml="10px"
-                    width="24px"
-                    height="24px"
-                    bg={Colors.offwhite}
-                  >
-                    <FontAwesome
-                      name="user-circle-o"
-                      size={24}
-                      color={Colors.grey}
-                    />
-                  </Circle>
-                  <HeaderText1 font={Font.Medium} ml="15px">
-                    Username
+
+                  <HeaderText1 font={Font.Bold} ml="15px">
+                    {username}
                   </HeaderText1>
                 </FlexRowContainer>
               </FlexColumnContainer>

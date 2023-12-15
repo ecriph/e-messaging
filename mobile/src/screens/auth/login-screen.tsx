@@ -16,10 +16,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { useMainApi } from '../../internals/api/use-main-request';
 import ErrorOverlayModal from '../../internals/ui-kit/error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserLoginSchema } from '@/shared/users/user-login/user-login.schemas';
 import { TransportFailure } from '../../internals/transport/transport-failure';
-import { Alert } from 'react-native';
-import { LOAD_CONVERSATIONS } from '../../redux/chat/reducer';
+import * as Yup from 'yup';
 
 type Props = {};
 interface LoginProps {
@@ -34,10 +32,15 @@ const LoginScreen = (props: Props) => {
   const chat = useAppSelector((state) => state.chat);
   const { postRequest } = useMainApi();
 
+  const LoginValidation = Yup.object().shape({
+    email: Yup.string().email('Invalid email').required('*required'),
+    password: Yup.string().min(6).required('*required'),
+  });
+
   return (
     <Formik
       initialValues={initialValues}
-      // validationSchema={UserLoginSchema}
+      validationSchema={LoginValidation}
       onSubmit={async (values, { setErrors }) => {
         setLoading(true);
         const payload = { email: values.email, password: values.password };
@@ -86,7 +89,7 @@ const LoginScreen = (props: Props) => {
             </FlexColumnContainer>
           }
         >
-          <FlexColumnContainer justifyContent="flex-start" mt="40px">
+          <FlexColumnContainer justifyContent="flex-start" mt="30px">
             <FlexRowContainer justifyContent="flex-start" mb="15px">
               <BackArrow />
             </FlexRowContainer>

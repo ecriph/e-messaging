@@ -12,8 +12,11 @@ export declare class MessageController {
         conversations: {
             id: string;
             userId: string;
+            userName: string;
+            recipientName: string;
             recipientId: string;
             createdAt: Date;
+            updatedAt: Date;
         }[];
         messages: {
             id: string;
@@ -21,6 +24,7 @@ export declare class MessageController {
             senderId: string;
             conversationId: string;
             createdAt: Date;
+            updatedAt: Date;
         }[];
     } & {
         id: string;
@@ -37,11 +41,15 @@ export declare class MessageController {
             senderId: string;
             conversationId: string;
             createdAt: Date;
+            updatedAt: Date;
         } | never[] | undefined;
         id: string;
         userId: string;
+        userName: string;
+        recipientName: string;
         recipientId: string;
         createdAt: Date;
+        updatedAt: Date;
     }[]>;
     getMessages(authContext: AuthContext, listMessage: ListMessageDTO): Promise<{
         id: string;
@@ -49,6 +57,7 @@ export declare class MessageController {
         senderId: string;
         conversationId: string;
         createdAt: Date;
+        updatedAt: Date;
     }[]>;
     createMessage(authContext: AuthContext, sendMessage: CreateMessageDTO): Promise<{
         id: string;
@@ -56,6 +65,7 @@ export declare class MessageController {
         senderId: string;
         conversationId: string;
         createdAt: Date;
+        updatedAt: Date;
     }>;
     createConversation(authContext: AuthContext, createConversation: createConversationDTO): Promise<{
         messages: {
@@ -64,11 +74,15 @@ export declare class MessageController {
             senderId: string;
             conversationId: string;
             createdAt: Date;
+            updatedAt: Date;
         }[];
     } & {
         id: string;
         userId: string;
+        userName: string;
+        recipientName: string;
         recipientId: string;
         createdAt: Date;
+        updatedAt: Date;
     }>;
 }
