@@ -17,8 +17,15 @@ let EventGateway = class EventGateway {
         this.connectedUsers = new Set();
         this.unreadMessageCounts = new Map();
     }
+    handleConnection(status) {
+        this.connectedUsers.add(status.userId);
+        this.server.emit('onlineStatus', status);
+    }
     sendMessage(message) {
         this.server.emit('newMessage', message);
+    }
+    handleTyping(status) {
+        this.server.emit('typingStatus', status);
     }
     handleMessage(client, payload) {
         const { convoId } = payload;

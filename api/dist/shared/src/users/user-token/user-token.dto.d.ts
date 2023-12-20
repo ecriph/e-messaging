@@ -4,6 +4,7 @@ export declare class UserTokenDTO {
 }
 export declare class UserAuthTokenDTO {
     refreshToken: string;
+    accessToken: string;
 }
 export declare class UserTokenStatus {
     success: boolean;

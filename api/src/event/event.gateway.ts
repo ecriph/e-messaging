@@ -6,7 +6,7 @@ import {
 import { Server } from 'socket.io';
 import { ServerToClientEvent } from './types/events';
 import { MessageDTO } from '@/shared/messages/message.dto';
-// import { UserStatus } from '@/shared/users/user-login/user-status.dto';
+import { UserStatus } from '@/shared/users/user-login/user-status.dto';
 
 @WebSocketGateway({ namespace: 'events' })
 export class EventGateway {
@@ -16,11 +16,11 @@ export class EventGateway {
   private connectedUsers: Set<string> = new Set();
   private unreadMessageCounts: Map<string, number> = new Map();
 
-  // handleConnection(status: UserStatus) {
-  //   this.connectedUsers.add(status.userId);
-  //   // Notify frontend about online status
-  //   this.server.emit('onlineStatus', status);
-  // }
+  handleConnection(status: UserStatus) {
+    this.connectedUsers.add(status.userId);
+    // Notify frontend about online status
+    this.server.emit('onlineStatus', status);
+  }
 
   // handleDisconnect(status: UserStatus) {
   //   this.connectedUsers.delete(status.userId);
@@ -31,10 +31,10 @@ export class EventGateway {
     this.server.emit('newMessage', message);
   }
 
-  // handleTyping(status: UserStatus): void {
-  //   // Notify frontend about typing status
-  //   this.server.emit('typingStatus', status);
-  // }
+  handleTyping(status: UserStatus): void {
+    // Notify frontend about typing status
+    this.server.emit('typingStatus', status);
+  }
 
   handleMessage(client: any, payload: any): void {
     // Handle incoming messages

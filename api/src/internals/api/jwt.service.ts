@@ -36,14 +36,16 @@ export class JwtService {
   async signToken({
     id,
     role,
+    duration
   }: {
     id: string;
     role: UserRole;
+    duration: string
   }): Promise<{ success: boolean; token: string }> {
     const payload = { id, role };
     try {
       const token = jwt.sign(payload, EnvironmentVariables.JWT_SECRET, {
-        expiresIn: '1h',
+        expiresIn: duration,
       });
 
       return { success: true, token: token };

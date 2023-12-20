@@ -54,14 +54,14 @@ const user_token_schemas_1 = require("../../../shared/src/users/user-token/user-
 const user_token_dto_1 = require("../../../shared/src/users/user-token/user-token.dto");
 const auth_context_1 = require("./auth-context");
 const auth_context_decorator_1 = require("./auth-context.decorator");
-var ErrorMessage;
-(function (ErrorMessage) {
-    ErrorMessage["WENT_WRONG"] = "Something went wrong!";
-})(ErrorMessage || (ErrorMessage = {}));
+const reister_push_token_schemas_1 = require("../../../shared/src/users/user-push-token/reister-push-token.schemas");
+const register_push_token_dto_1 = require("../../../shared/src/users/user-push-token/register-push-token.dto");
+const event_gateway_1 = require("../event/event.gateway");
 let AuthController = class AuthController {
-    constructor(prisma, jwtService) {
+    constructor(prisma, jwtService, event) {
         this.prisma = prisma;
         this.jwtService = jwtService;
+        this.event = event;
     }
     async getSession(authContext) {
         return {
@@ -79,17 +79,28 @@ let AuthController = class AuthController {
             }
             const checkValidPassword = await bcrypt.compare(userLogin.password, userData.password);
             if (checkValidPassword) {
-                const payload = { id: userData.id, role: userData.role };
-                const generateToken = await this.jwtService.signToken(payload);
-                const refreshToken = (0, uuid_1.v1)();
-                if (generateToken.success) {
+                const accesspayload = {
+                    id: userData.id,
+                    role: userData.role,
+                    duration: '300s',
+                };
+                const refreshpayload = {
+                    id: userData.id,
+                    role: userData.role,
+                    duration: '7d',
+                };
+                const accessToken = await this.jwtService.signToken(accesspayload);
+                const refreshToken = await this.jwtService.signToken(refreshpayload);
+                if (accessToken.success) {
                     await tx.user.update({
                         where: { id: userData.id },
-                        data: { refresh_token: refreshToken },
+                        data: { refresh_token: refreshToken.token },
                     });
+                    const status = { userId: userData.id, status: 'Online' };
+                    this.event.handleConnection(status);
                     return {
-                        token: generateToken.token,
-                        refresh_token: refreshToken,
+                        token: accessToken.token,
+                        refresh_token: refreshToken.token,
                         messages: userData.messages,
                         conversations: userData.conversations,
                         fullname: userData.fullname,
@@ -127,7 +138,11 @@ let AuthController = class AuthController {
                     role: client_1.UserRole.USER,
                 },
             });
-            const payload = { id: registerUser.id, role: registerUser.role };
+            const payload = {
+                id: registerUser.id,
+                role: registerUser.role,
+                duration: '300s',
+            };
             const getToken = await this.jwtService.signToken(payload);
             if (getToken.success) {
                 return {
@@ -141,18 +156,49 @@ let AuthController = class AuthController {
             }
         });
     }
-    async getToken(param) {
-        const checkUser = await this.prisma
-            .getClient()
-            .user.findFirst({ where: { refresh_token: param.refreshToken } });
-        if (checkUser) {
-            const payload = { id: checkUser.id, role: checkUser.role };
-            const newToken = await this.jwtService.signToken(payload);
-            return newToken.success ? newToken.token : ErrorMessage.WENT_WRONG;
+    async refreshToken(userAuthToken) {
+        const verifyToken = this.jwtService.verifyToken(userAuthToken.accessToken);
+        if ((await verifyToken).success) {
+            return {
+                accessToken: userAuthToken.accessToken,
+                refreshToken: userAuthToken.refreshToken,
+            };
         }
         else {
-            return ErrorMessage.WENT_WRONG;
+            return this.prisma.getClient().$transaction(async (tx) => {
+                const checkUser = await tx.user.findFirst({
+                    where: { refresh_token: userAuthToken.refreshToken },
+                });
+                if (!checkUser)
+                    throw new common_1.UnauthorizedException('user-not-found');
+                const accesspayload = {
+                    id: checkUser.id,
+                    role: checkUser.role,
+                    duration: '300s',
+                };
+                const refreshpayload = {
+                    id: checkUser.id,
+                    role: checkUser.role,
+                    duration: '7d',
+                };
+                const newAccessToken = await this.jwtService.signToken(accesspayload);
+                const newRefreshToken = await this.jwtService.signToken(refreshpayload);
+                await tx.user.update({
+                    where: { id: checkUser.id },
+                    data: { refresh_token: newRefreshToken.token },
+                });
+                return {
+                    accessToken: newAccessToken.token,
+                    refreshToken: newRefreshToken.token,
+                };
+            });
         }
+    }
+    async registerPushtoken(authContext, registerToken) {
+        const register = this.prisma.getClient().pushToken.create({
+            data: { token: registerToken.token, userId: authContext.user.id },
+        });
+        return register;
     }
 };
 exports.AuthController = AuthController;
@@ -183,17 +229,27 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "registerUser", null);
 __decorate([
-    (0, common_1.Get)('/token/:refreshToken'),
+    (0, common_1.Post)('/refresh-token'),
     (0, public_route_decorator_1.PublicRoute)(),
-    openapi.ApiResponse({ status: 200, type: String }),
-    __param(0, (0, common_1.Param)(new validation_pipe_1.ValidationPipe(user_token_schemas_1.UserAuthTokenSchema))),
+    openapi.ApiResponse({ status: 201, type: require("../../../shared/src/users/user-token/user-token.dto").UserAuthTokenDTO }),
+    __param(0, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(user_token_schemas_1.UserAuthTokenSchema))),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [user_token_dto_1.UserAuthTokenDTO]),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "getToken", null);
+], AuthController.prototype, "refreshToken", null);
+__decorate([
+    (0, common_1.Post)('/register-token'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(reister_push_token_schemas_1.RegisterPushTokenSchema))),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_context_1.AuthContext,
+        register_push_token_dto_1.RegisterPushTokenDTO]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "registerPushtoken", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('/auth'),
     __metadata("design:paramtypes", [prisma_client_service_1.PrismaClientService,
-        jwt_service_1.JwtService])
+        jwt_service_1.JwtService,
+        event_gateway_1.EventGateway])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

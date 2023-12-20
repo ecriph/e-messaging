@@ -23,6 +23,12 @@ model User {
   role          UserRole
 }
 
+model PushToken {
+  id     String @id @default(uuid())
+  userId String
+  token  String
+}
+
 model Conversation {
   id            String    @id @default(uuid())
   userId        String

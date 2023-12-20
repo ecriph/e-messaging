@@ -9,7 +9,7 @@ exports.UserTokenSchema = zod_1.z
 })
     .strict();
 exports.UserAuthTokenSchema = zod_1.z.object({
-    token: zod_1.z.string(),
+    accessToken: zod_1.z.string(),
     refreshToken: zod_1.z.string(),
 });
 //# sourceMappingURL=user-token.schemas.js.map

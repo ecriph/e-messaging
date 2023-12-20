@@ -48,11 +48,11 @@ class JwtService {
             throw new common_1.UnauthorizedException('Invalid token');
         }
     }
-    async signToken({ id, role, }) {
+    async signToken({ id, role, duration }) {
         const payload = { id, role };
         try {
             const token = jwt.sign(payload, environment_variables_1.EnvironmentVariables.JWT_SECRET, {
-                expiresIn: '1h',
+                expiresIn: duration,
             });
             return { success: true, token: token };
         }

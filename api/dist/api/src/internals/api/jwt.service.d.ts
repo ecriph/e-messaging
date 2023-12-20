@@ -5,9 +5,10 @@ export declare class JwtService {
     private readonly prisma;
     constructor(prisma: PrismaClientService);
     verifyToken(authToken: string): Promise<UserTokenStatus>;
-    signToken({ id, role, }: {
+    signToken({ id, role, duration }: {
         id: string;
         role: UserRole;
+        duration: string;
     }): Promise<{
         success: boolean;
         token: string;
