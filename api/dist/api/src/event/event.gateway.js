@@ -20,6 +20,9 @@ let EventGateway = class EventGateway {
     sendMessage(message) {
         this.server.emit('newMessage', message);
     }
+    handleTyping(status) {
+        this.server.emit('typingStatus', status);
+    }
     handleMessage(client, payload) {
         const { convoId } = payload;
         this.updateUnreadMessageCount(convoId);

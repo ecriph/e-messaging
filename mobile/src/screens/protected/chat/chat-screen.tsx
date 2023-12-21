@@ -1,20 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Circle,
   FlexColumnContainer,
   FlexRowContainer,
   MainContainer,
   PressableContainer,
 } from '../../../internals/ui-kit/container';
-import { HeaderText1 } from '../../../internals/ui-kit/text';
+import { HeaderText1, SmallText } from '../../../internals/ui-kit/text';
 import { PrimaryInput } from '../../../internals/ui-kit/input';
 import { ChatButton } from '../../../internals/ui-kit/button';
-import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
+import { Font, FontSize } from '../../../internals/ui-kit/theme';
 import BackArrow from '../../../internals/ui-kit/back-arrow';
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { Formik } from 'formik';
-import { useSelector } from 'react-redux';
-import { ChatRootState, LOAD_MESSAGES } from '../../../redux/chat/reducer';
 import { UserRootState } from '../../../redux/user/reducer';
 import { ChatContainer } from './use-chat-component';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
@@ -22,10 +18,11 @@ import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
 import { RouteProp } from '@react-navigation/native';
 import { useMainApi } from '../../../internals/api/use-main-request';
-// import socket from '../../../internals/service/socket-services';
+import socket from '../../../internals/service/socket-services';
 import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 import { ScrollView } from 'react-native-gesture-handler';
 import useWebSocket from './use-socket';
+import { UserStatus } from '@/shared/users/user-login/user-status.dto';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -46,10 +43,19 @@ const ChatScreen = ({ route }: Props) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [typing, setTyping] = useState<string>();
   const [count, setUnreadCount] = useState<string>();
+
   const handleScrollToEnd = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollToEnd({ animated: true });
     }
+  };
+
+  const handleStatus = () => {
+    socket.emit('typingStatus', {
+      userId: user.userId,
+      username: user.fullname,
+      typing: true,
+    });
   };
   const getMessages = useCallback(async () => {
     try {
@@ -77,24 +83,14 @@ const ChatScreen = ({ route }: Props) => {
       setChatMessage((prevMessages) => [...prevMessages, myMessage]);
       handleScrollToEnd();
     },
-    (status) => {
-      setTyping(status);
+    (typing: UserStatus) => {
+      if (typing.status === true) {
+        setTyping(`${typing.username} is typing...`);
+      } else {
+        setTyping('');
+      }
     }
   );
-
-  // useEffect(() => {
-  //   const handleNewMessage = (message: CreateChatMessageDTO) => {
-  //     setChatMessage((prevMessages) => [...prevMessages, message]);
-  //     handleScrollToEnd();
-  //   };
-
-  //   socket.on('newMessage', handleNewMessage);
-
-  //   return () => {
-  //     // Cleanup the socket event listener when the component unmounts
-  //     socket.off('newMessage', handleNewMessage);
-  //   };
-  // }, [socket, chatMessage]);
 
   return (
     <Formik
@@ -146,6 +142,7 @@ const ChatScreen = ({ route }: Props) => {
                 fontSize={FontSize.header1}
                 error={errors.message}
                 onFocus={handleScrollToEnd}
+                onKeyPress={handleStatus}
               />
               <ChatButton width="15%" mb="0px" onPress={handleSubmit} />
             </FlexRowContainer>
@@ -160,6 +157,7 @@ const ChatScreen = ({ route }: Props) => {
                   <HeaderText1 font={Font.Bold} ml="15px">
                     {username}
                   </HeaderText1>
+                  <SmallText fontSize={10}>{typing}</SmallText>
                 </FlexRowContainer>
               </FlexColumnContainer>
               <FlexColumnContainer>

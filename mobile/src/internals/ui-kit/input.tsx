@@ -81,6 +81,7 @@ interface InputFieldProps {
   create?: () => void;
   fontSize?: number;
   onFocus?: () => void;
+  onKeyPress?: () => void;
 }
 
 export const PrimaryInput: React.FC<InputFieldProps> = ({
@@ -95,6 +96,7 @@ export const PrimaryInput: React.FC<InputFieldProps> = ({
   edit,
   fontSize,
   onFocus,
+  onKeyPress,
 }) => {
   const [focus, setFocus] = useState(Colors.inputs.textInput);
   const [blur, setBlur] = useState(Colors.inputs.textInput);
@@ -122,6 +124,7 @@ export const PrimaryInput: React.FC<InputFieldProps> = ({
           bgColor={focus.background}
           editable={edit}
           fontSize={fontSize}
+          onKeyPress={onKeyPress}
         />
       </TextInputWrapper>
       <NormalText color={Colors.error}>{error}</NormalText>

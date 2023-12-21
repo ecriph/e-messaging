@@ -1,4 +1,5 @@
 export declare class UserStatus {
     userId: string;
-    status: 'Online' | 'Typing';
+    status: boolean;
+    username: string;
 }

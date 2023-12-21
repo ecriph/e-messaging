@@ -9,7 +9,9 @@ import { Conversation, Message, User } from '@prisma/client';
 import { AuthContext } from 'src/auth/auth-context';
 import { WithAuthContext } from 'src/auth/auth-context.decorator';
 import { EventGateway } from 'src/event/event.gateway';
+import { PushNotificationService } from 'src/internals/api/push-notification/push-notification.service';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
+import { ResourceNotFoundException } from 'src/internals/server/resource-not-found.exception';
 import { ValidationPipe } from 'src/internals/validation/validation.pipe';
 
 function lastMessage(conversation: Conversation & { messages: Message[] }) {
@@ -32,6 +34,7 @@ export class MessageController {
   constructor(
     private readonly prisma: PrismaClientService,
     private readonly event: EventGateway,
+    private readonly sendNotification: PushNotificationService,
   ) {}
 
   @Get('/list/users')
@@ -83,17 +86,30 @@ export class MessageController {
     @Body(new ValidationPipe(CreateMessageSchema))
     sendMessage: CreateMessageDTO,
   ) {
-    const message = await this.prisma.getClient().message.create({
-      data: {
-        content: sendMessage.content,
-        senderId: authContext.user.id,
-        conversationId: sendMessage.conversationId,
-      },
+    return await this.prisma.getClient().$transaction(async (tx) => {
+      const message = await tx.message.create({
+        data: {
+          content: sendMessage.content,
+          senderId: authContext.user.id,
+          conversationId: sendMessage.conversationId,
+        },
+      });
+
+      const getToken = await tx.pushToken.findUnique({
+        where: { userId: authContext.user.id },
+      });
+      if (!getToken) return new ResourceNotFoundException();
+
+      const pushToken: string[] = [getToken.token];
+
+      this.event.sendMessage(message);
+      await this.sendNotification.sendPushNotification(
+        pushToken,
+        sendMessage.content,
+      );
+
+      return message;
     });
-
-    this.event.sendMessage(message);
-
-    return message;
   }
 
   @Post('/create/conversation')

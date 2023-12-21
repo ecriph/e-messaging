@@ -8,7 +8,6 @@ import {
   Get,
   Body,
   Controller,
-  Param,
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -26,19 +25,22 @@ import {
 } from '@/shared/users/user-register/user-register.dto';
 import { UserRole } from '@prisma/client';
 import { UserAuthTokenSchema } from '@/shared/users/user-token/user-token.schemas';
-import { UserAuthTokenDTO } from '@/shared/users/user-token/user-token.dto';
+import {
+  UserAuthResponseDTO,
+  UserAuthTokenDTO,
+} from '@/shared/users/user-token/user-token.dto';
 import { AuthContext } from './auth-context';
 import { WithAuthContext } from './auth-context.decorator';
-
-enum ErrorMessage {
-  WENT_WRONG = 'Something went wrong!',
-}
+import { RegisterPushTokenSchema } from '@/shared/users/user-push-token/reister-push-token.schemas';
+import { RegisterPushTokenDTO } from '@/shared/users/user-push-token/register-push-token.dto';
+import { EventGateway } from 'src/event/event.gateway';
 
 @Controller('/auth')
 export class AuthController {
   constructor(
     private readonly prisma: PrismaClientService,
     private readonly jwtService: JwtService,
+    private readonly event: EventGateway,
   ) {}
 
   @Get('/session')
@@ -68,20 +70,31 @@ export class AuthController {
         userData.password,
       );
       if (checkValidPassword) {
-        const payload = { id: userData.id, role: userData.role };
+        const accesspayload = {
+          id: userData.id,
+          role: userData.role,
+          duration: '20s',
+        };
+        const refreshpayload = {
+          id: userData.id,
+          role: userData.role,
+          duration: '7d',
+        };
 
-        const generateToken = await this.jwtService.signToken(payload);
-        const refreshToken = v1();
+        const accessToken = await this.jwtService.signToken(accesspayload);
+        const refreshToken = await this.jwtService.signToken(refreshpayload);
 
-        if (generateToken.success) {
+        if (accessToken.success) {
           await tx.user.update({
             where: { id: userData.id },
-            data: { refresh_token: refreshToken },
+            data: { refresh_token: refreshToken.token },
           });
+          // const status = { userId: userData.id, status: 'Online' };
+          // this.event.handleConnection(status);
 
           return {
-            token: generateToken.token,
-            refresh_token: refreshToken,
+            token: accessToken.token,
+            refresh_token: refreshToken.token,
             messages: userData.messages,
             conversations: userData.conversations,
             fullname: userData.fullname,
@@ -126,7 +139,11 @@ export class AuthController {
         },
       });
 
-      const payload = { id: registerUser.id, role: registerUser.role };
+      const payload = {
+        id: registerUser.id,
+        role: registerUser.role,
+        duration: '300s',
+      };
       const getToken = await this.jwtService.signToken(payload);
 
       if (getToken.success) {
@@ -141,22 +158,52 @@ export class AuthController {
     });
   }
 
-  @Get('/token/:refreshToken')
+  @Post('/refresh-token')
   @PublicRoute()
-  async getToken(
-    @Param(new ValidationPipe(UserAuthTokenSchema)) param: UserAuthTokenDTO,
-  ): Promise<string> {
-    const checkUser = await this.prisma
-      .getClient()
-      .user.findFirst({ where: { refresh_token: param.refreshToken } });
+  async refreshToken(
+    @Body(new ValidationPipe(UserAuthTokenSchema))
+    userAuthToken: UserAuthTokenDTO,
+  ): Promise<UserAuthResponseDTO> {
+    return this.prisma.getClient().$transaction(async (tx) => {
+      const checkUser = await tx.user.findFirst({
+        where: { refresh_token: userAuthToken.refreshToken },
+      });
+      if (!checkUser) throw new UnauthorizedException('user-not-found');
 
-    if (checkUser) {
-      const payload = { id: checkUser.id, role: checkUser.role };
-      const newToken = await this.jwtService.signToken(payload);
+      const accesspayload = {
+        id: checkUser.id,
+        role: checkUser.role,
+        duration: '20s',
+      };
+      // const refreshpayload = {
+      //   id: checkUser.id,
+      //   role: checkUser.role,
+      //   duration: '7d',
+      // };
+      const newAccessToken = await this.jwtService.signToken(accesspayload);
+      // const newRefreshToken = await this.jwtService.signToken(refreshpayload);
 
-      return newToken.success ? newToken.token : ErrorMessage.WENT_WRONG;
-    } else {
-      return ErrorMessage.WENT_WRONG;
-    }
+      // await tx.user.update({
+      //   where: { id: checkUser.id },
+      //   data: { refresh_token: newRefreshToken.token },
+      // });
+
+      return {
+        accessToken: newAccessToken.token,
+        refreshToken: userAuthToken.refreshToken,
+      };
+    });
+  }
+
+  @Post('/register-token')
+  async registerPushtoken(
+    @Body(new ValidationPipe(RegisterPushTokenSchema)) authContext: AuthContext,
+    registerToken: RegisterPushTokenDTO,
+  ) {
+    const register = this.prisma.getClient().pushToken.create({
+      data: { token: registerToken.token, userId: authContext.user.id },
+    });
+
+    return register;
   }
 }

@@ -6,8 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "start:dev": "cross-env NODE_ENV=production nest start --watch",
-    "start:debug": "cross-env NODE_ENV=production nest start --debug --watch",
+    "start:dev": "cross-env NODE_ENV=development nest start --watch",
+    "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "dev:prisma:studio": "prisma studio",
     "dev:prisma:push": "prisma db push",
     "dev:prisma:reset": "prisma migrate reset",
@@ -38,6 +38,7 @@
     "class-transformer": "^0.5.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.3",
+    "expo-server-sdk": "^3.7.0",
     "jsonwebtoken": "^9.0.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
