@@ -175,11 +175,6 @@ export class AuthController {
         role: checkUser.role,
         duration: '20s',
       };
-      // const refreshpayload = {
-      //   id: checkUser.id,
-      //   role: checkUser.role,
-      //   duration: '7d',
-      // };
       const newAccessToken = await this.jwtService.signToken(accesspayload);
       // const newRefreshToken = await this.jwtService.signToken(refreshpayload);
 
