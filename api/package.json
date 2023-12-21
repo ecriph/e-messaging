@@ -11,7 +11,7 @@
     "dev:prisma:studio": "prisma studio",
     "dev:prisma:push": "prisma db push",
     "dev:prisma:reset": "prisma migrate reset",
-    "dev:prisma:migrations:generate": "prisma migrate dev --name $(date +\"%Y%m%d\")",
+    "dev:prisma:migrations:generate": "prisma migrate dev --name $(date +\"%Y%m%d\") --create-only",
     "dev:prisma:generate-client": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:migrate:deploy": "prisma migrate deploy",
