@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Circle,
   FlexColumnContainer,
@@ -23,6 +23,7 @@ import { ChatList } from './use-dashboard-chat-list';
 import { UsersList } from './use-dashboard-user-list';
 import { LOGOUT_USER } from '../../../redux/user/reducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMainApi } from '../../../internals/api/use-main-request';
 
 interface DashboardProps {}
 
@@ -43,6 +44,22 @@ const DashboardScreen = (props: DashboardProps) => {
   const [selected, setSelected] = useState<string>(CategoryList.CHATS);
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
+  const { postRequest } = useMainApi();
+
+  const RegisterToken = async () => {
+    if (!user?.token) return;
+    try {
+      const payload = { token: user.token };
+      const response = await postRequest('/auth/register-token', payload);
+      return response;
+    } catch (err) {
+      console.log('Error in registering the device to push notifications');
+    }
+  };
+
+  useEffect(() => {
+    RegisterToken();
+  }, [user.token]);
 
   const navigation =
     useNavigation<NavigationProp<ReactNavigation.RootParamList>>();

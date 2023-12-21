@@ -4,7 +4,6 @@ export declare class EventGateway {
     private readonly server;
     private connectedUsers;
     private unreadMessageCounts;
-    handleConnection(status: UserStatus): void;
     sendMessage(message: MessageDTO): void;
     handleTyping(status: UserStatus): void;
     handleMessage(client: any, payload: any): void;

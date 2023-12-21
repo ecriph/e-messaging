@@ -8,12 +8,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import useCatchResource from './src/internals/utils/use-catch-resource';
-// import Loading from './src/internals/ui-kit/loading';
+import Loading from './src/internals/ui-kit/loading';
 
 export default function App() {
   const isReady = useCatchResource(store);
 
-  if (!isReady) return <></>;
+  if (!isReady) return <Loading />;
 
   return (
     <Provider store={store}>

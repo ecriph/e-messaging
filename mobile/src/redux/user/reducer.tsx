@@ -8,6 +8,7 @@ export type UserState = {
   isLoggedIn: boolean;
   isUser: boolean;
   userId: string;
+  token: string;
 };
 
 export type UserRootState = {
@@ -22,6 +23,7 @@ const initialState: UserState = {
   isLoggedIn: false,
   isUser: false,
   userId: '',
+  token: '',
 };
 
 const auth = createSlice({
@@ -54,10 +56,19 @@ const auth = createSlice({
       state.fullname = action.payload.fullname;
       state.userId = action.payload.userId;
     },
+
+    REGISTER_TOKEN: (state, action) => {
+      state.token = action.payload.token;
+    },
   },
 });
 
-export const { LOGIN_SUCCESS, LOGOUT_USER, LOGIN_USER, SAVE_PERSONAL } =
-  auth.actions;
+export const {
+  LOGIN_SUCCESS,
+  LOGOUT_USER,
+  LOGIN_USER,
+  SAVE_PERSONAL,
+  REGISTER_TOKEN,
+} = auth.actions;
 
 export default auth.reducer;

@@ -9,6 +9,5 @@ export const UserTokenSchema: Schema<UserTokenDTO> = z
   .strict();
 
 export const UserAuthTokenSchema: Schema<UserAuthTokenDTO> = z.object({
-  token: z.string(),
   refreshToken: z.string(),
 });

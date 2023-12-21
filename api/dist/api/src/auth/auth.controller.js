@@ -82,7 +82,7 @@ let AuthController = class AuthController {
                 const accesspayload = {
                     id: userData.id,
                     role: userData.role,
-                    duration: '300s',
+                    duration: '20s',
                 };
                 const refreshpayload = {
                     id: userData.id,
@@ -96,8 +96,6 @@ let AuthController = class AuthController {
                         where: { id: userData.id },
                         data: { refresh_token: refreshToken.token },
                     });
-                    const status = { userId: userData.id, status: 'Online' };
-                    this.event.handleConnection(status);
                     return {
                         token: accessToken.token,
                         refresh_token: refreshToken.token,
@@ -157,42 +155,23 @@ let AuthController = class AuthController {
         });
     }
     async refreshToken(userAuthToken) {
-        const verifyToken = this.jwtService.verifyToken(userAuthToken.accessToken);
-        if ((await verifyToken).success) {
+        return this.prisma.getClient().$transaction(async (tx) => {
+            const checkUser = await tx.user.findFirst({
+                where: { refresh_token: userAuthToken.refreshToken },
+            });
+            if (!checkUser)
+                throw new common_1.UnauthorizedException('user-not-found');
+            const accesspayload = {
+                id: checkUser.id,
+                role: checkUser.role,
+                duration: '20s',
+            };
+            const newAccessToken = await this.jwtService.signToken(accesspayload);
             return {
-                accessToken: userAuthToken.accessToken,
+                accessToken: newAccessToken.token,
                 refreshToken: userAuthToken.refreshToken,
             };
-        }
-        else {
-            return this.prisma.getClient().$transaction(async (tx) => {
-                const checkUser = await tx.user.findFirst({
-                    where: { refresh_token: userAuthToken.refreshToken },
-                });
-                if (!checkUser)
-                    throw new common_1.UnauthorizedException('user-not-found');
-                const accesspayload = {
-                    id: checkUser.id,
-                    role: checkUser.role,
-                    duration: '300s',
-                };
-                const refreshpayload = {
-                    id: checkUser.id,
-                    role: checkUser.role,
-                    duration: '7d',
-                };
-                const newAccessToken = await this.jwtService.signToken(accesspayload);
-                const newRefreshToken = await this.jwtService.signToken(refreshpayload);
-                await tx.user.update({
-                    where: { id: checkUser.id },
-                    data: { refresh_token: newRefreshToken.token },
-                });
-                return {
-                    accessToken: newAccessToken.token,
-                    refreshToken: newRefreshToken.token,
-                };
-            });
-        }
+        });
     }
     async registerPushtoken(authContext, registerToken) {
         const register = this.prisma.getClient().pushToken.create({
@@ -231,7 +210,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/refresh-token'),
     (0, public_route_decorator_1.PublicRoute)(),
-    openapi.ApiResponse({ status: 201, type: require("../../../shared/src/users/user-token/user-token.dto").UserAuthTokenDTO }),
+    openapi.ApiResponse({ status: 201, type: require("../../../shared/src/users/user-token/user-token.dto").UserAuthResponseDTO }),
     __param(0, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(user_token_schemas_1.UserAuthTokenSchema))),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [user_token_dto_1.UserAuthTokenDTO]),

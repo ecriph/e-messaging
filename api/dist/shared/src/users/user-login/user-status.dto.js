@@ -4,7 +4,7 @@ exports.UserStatus = void 0;
 const openapi = require("@nestjs/swagger");
 class UserStatus {
     static _OPENAPI_METADATA_FACTORY() {
-        return { userId: { required: true, type: () => String }, status: { required: true, type: () => String } };
+        return { userId: { required: true, type: () => String }, status: { required: true, type: () => Boolean }, username: { required: true, type: () => String } };
     }
 }
 exports.UserStatus = UserStatus;

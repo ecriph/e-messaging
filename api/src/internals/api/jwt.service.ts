@@ -26,7 +26,11 @@ export class JwtService {
       };
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
-        throw new UnauthorizedException('Token-expired');
+        return {
+          message: '',
+          success: false,
+          user: { id: '', role: '' },
+        };
       }
 
       throw new UnauthorizedException('Invalid token');
@@ -36,11 +40,11 @@ export class JwtService {
   async signToken({
     id,
     role,
-    duration
+    duration,
   }: {
     id: string;
     role: UserRole;
-    duration: string
+    duration: string;
   }): Promise<{ success: boolean; token: string }> {
     const payload = { id, role };
     try {

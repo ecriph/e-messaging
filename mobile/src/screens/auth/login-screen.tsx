@@ -45,7 +45,6 @@ const LoginScreen = (props: Props) => {
         setLoading(true);
         const payload = { email: values.email, password: values.password };
         const response = await postRequest('auth/login', payload);
-        console.log(response);
         if (response.failure) {
           response.failure === TransportFailure.AbortedAndDealtWith &&
             setErrors({ password: 'Invalid Password' });

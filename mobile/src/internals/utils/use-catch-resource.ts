@@ -1,12 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { confirmToken } from '../../redux/user/action';
+import { registerForPushNotificationsAsync } from '../service/push-notification';
+import * as Notifications from 'expo-notifications';
+import { Notification, Subscription } from 'expo-notifications';
+import { useMainApi } from '../api/use-main-request';
+import { REGISTER_TOKEN } from '../../redux/user/reducer';
 
-function useCatchResource(store: { dispatch: (arg0: () => void) => any }) {
+function useCatchResource(store: any) {
   const [appIsReady, setAppIsReady] = useState(false);
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState<Notification | null>(null);
+  const notificationListener = useRef<Subscription>();
+  const responseListener = useRef<Subscription>();
+  const { postRequest } = useMainApi();
 
   let customFonts = {
     Bold: require('../../../assets/fonts/Inter-ExtraBold.ttf'),
@@ -44,6 +54,27 @@ function useCatchResource(store: { dispatch: (arg0: () => void) => any }) {
         .catch((error) => console.log('Error checking authentication:', error));
     }
 
+    async function PushToken() {
+      await registerForPushNotificationsAsync().then(async (token) => {
+        if (token !== undefined) {
+          setExpoPushToken(token);
+        }
+        await store.dispatch(REGISTER_TOKEN({ token: token }));
+
+        console.log('pushtoken: ' + token);
+      });
+
+      notificationListener.current =
+        Notifications.addNotificationReceivedListener((notification) => {
+          setNotification(notification);
+        });
+
+      responseListener.current =
+        Notifications.addNotificationResponseReceivedListener((response) => {
+          console.log(response);
+        });
+    }
+
     async function prepare() {
       try {
         await SplashScreen.preventAutoHideAsync();
@@ -51,6 +82,8 @@ function useCatchResource(store: { dispatch: (arg0: () => void) => any }) {
         await loadResourcesAsync();
 
         await Auth();
+
+        await PushToken();
 
         await Font.loadAsync(customFonts);
       } catch (e) {
@@ -60,6 +93,7 @@ function useCatchResource(store: { dispatch: (arg0: () => void) => any }) {
         SplashScreen.hideAsync();
       }
     }
+
     prepare();
   }, []);
   return appIsReady;

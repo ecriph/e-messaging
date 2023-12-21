@@ -30,6 +30,7 @@ const schema = z
     ]),
     DATABASE_URL: z.string(),
     JWT_SECRET: z.string(),
+    EXPO_ACCESS_TOKEN: z.string(),
   })
   .required();
 
