@@ -197,10 +197,17 @@ export class AuthController {
     @Body(new ValidationPipe(RegisterPushTokenSchema))
     registerToken: RegisterPushTokenDTO,
   ) {
-    const register = await this.prisma.getClient().pushToken.create({
-      data: { token: registerToken.token, userId: authContext.user.id },
-    });
+    return await this.prisma.getClient().$transaction(async (tx) => {
+      const findUser = await tx.pushToken.findFirst({
+        where: { userId: authContext.user.id },
+      });
 
-    return register;
+      if (findUser) return;
+
+      const register = await this.prisma.getClient().pushToken.create({
+        data: { token: registerToken.token, userId: authContext.user.id },
+      });
+      return register;
+    });
   }
 }
