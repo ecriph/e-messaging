@@ -103,18 +103,19 @@ export class MessageController {
           ? conversation.recipientId
           : conversation?.userId;
 
-      const getToken = await tx.pushToken.findFirst({
+      const getToken = await tx.pushToken.findUnique({
         where: { userId: recipientId },
       });
 
       if (!getToken) return new ResourceNotFoundException();
 
-      const pushToken: string[] = [getToken.token];
+      // const pushToken: string[] = [getToken.token];
 
       this.event.sendMessage(message);
       await this.sendNotification.sendPushNotification(
-        pushToken,
+        getToken.token,
         sendMessage.content,
+        'Prince',
       );
 
       return message;
