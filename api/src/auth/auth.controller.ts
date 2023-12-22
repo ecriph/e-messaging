@@ -192,7 +192,9 @@ export class AuthController {
 
   @Post('/register-token')
   async registerPushtoken(
-    @Body(new ValidationPipe(RegisterPushTokenSchema)) authContext: AuthContext,
+    @Body(new ValidationPipe(RegisterPushTokenSchema))
+    @WithAuthContext()
+    authContext: AuthContext,
     registerToken: RegisterPushTokenDTO,
   ) {
     const register = await this.prisma.getClient().pushToken.create({
