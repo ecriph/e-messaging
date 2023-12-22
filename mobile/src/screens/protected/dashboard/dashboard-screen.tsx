@@ -46,22 +46,37 @@ const DashboardScreen = (props: DashboardProps) => {
   const dispatch = useAppDispatch();
   const { postRequest } = useMainApi();
 
-  const RegisterToken = async () => {
-    if (!user?.token) return;
+  const registerToken = async () => {
+    if (!user?.token) {
+      console.log('User token is missing.');
+      return;
+    }
+
     try {
-      const payload = { token: user.token };
+      const payload = { token: user?.token };
       const response = await postRequest('/auth/register-token', payload);
-      console.log('pushTken:' + response.data);
-      console.log('failedpushTken:' + response.failure);
+
+      console.log('Push token:', user?.token);
+      console.log('Failed push token:', response.failure);
 
       return response;
     } catch (err) {
-      console.log('Error in registering the device to push notifications');
+      console.error(
+        'Error in registering the device for push notifications:',
+        err
+      );
+      throw err; // Propagate the error for better error handling if needed
     }
   };
 
   useEffect(() => {
-    RegisterToken();
+    registerToken()
+      .then((response) => {
+        // Handle the response if needed
+      })
+      .catch((error) => {
+        // Handle the error if needed
+      });
   }, []);
 
   const navigation =

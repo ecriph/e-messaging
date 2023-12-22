@@ -164,7 +164,7 @@ let AuthController = class AuthController {
             const accesspayload = {
                 id: checkUser.id,
                 role: checkUser.role,
-                duration: '20s',
+                duration: '300s',
             };
             const newAccessToken = await this.jwtService.signToken(accesspayload);
             return {
