@@ -10,13 +10,19 @@ import { Notification, Subscription } from 'expo-notifications';
 import { useMainApi } from '../api/use-main-request';
 import { REGISTER_TOKEN } from '../../redux/user/reducer';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 function useCatchResource(store: any) {
   const [appIsReady, setAppIsReady] = useState(false);
-  const [expoPushToken, setExpoPushToken] = useState('');
   const [notification, setNotification] = useState<Notification | null>(null);
   const notificationListener = useRef<Subscription>();
   const responseListener = useRef<Subscription>();
-  const { postRequest } = useMainApi();
 
   let customFonts = {
     Bold: require('../../../assets/fonts/Inter-ExtraBold.ttf'),
@@ -56,12 +62,7 @@ function useCatchResource(store: any) {
 
     async function PushToken() {
       await registerForPushNotificationsAsync().then(async (token) => {
-        if (token !== undefined) {
-          setExpoPushToken(token);
-        }
         await store.dispatch(REGISTER_TOKEN({ token: token }));
-
-        console.log('pushtoken: ' + token);
       });
 
       notificationListener.current =
