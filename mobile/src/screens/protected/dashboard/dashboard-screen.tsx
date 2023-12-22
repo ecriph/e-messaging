@@ -51,6 +51,9 @@ const DashboardScreen = (props: DashboardProps) => {
     try {
       const payload = { token: user.token };
       const response = await postRequest('/auth/register-token', payload);
+      console.log('pushTken:' + response.data);
+      console.log('failedpushTken:' + response.failure);
+
       return response;
     } catch (err) {
       console.log('Error in registering the device to push notifications');
@@ -59,7 +62,7 @@ const DashboardScreen = (props: DashboardProps) => {
 
   useEffect(() => {
     RegisterToken();
-  }, [user.token]);
+  }, []);
 
   const navigation =
     useNavigation<NavigationProp<ReactNavigation.RootParamList>>();

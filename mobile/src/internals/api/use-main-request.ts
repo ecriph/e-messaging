@@ -65,7 +65,9 @@ export function useMainApi() {
           return { failure: TransportFailure.AbortedAndDealtWith };
         } else {
           // Handle other unexpected responses
-          return { failure: TransportFailure.UnexpectedResponse };
+          return {
+            failure: TransportFailure.UnexpectedResponse,
+          };
         }
       }
     } catch (error: any) {
@@ -80,7 +82,9 @@ export function useMainApi() {
         return { failure: TransportFailure.AbortedAndDealtWith };
       } else {
         // Handle other unexpected responses
-        return { failure: TransportFailure.UnexpectedResponse };
+        return {
+          failure: TransportFailure.UnexpectedResponse + error.response.status,
+        };
       }
     }
   };

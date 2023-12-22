@@ -73,7 +73,7 @@ export class AuthController {
         const accesspayload = {
           id: userData.id,
           role: userData.role,
-          duration: '20s',
+          duration: '300s',
         };
         const refreshpayload = {
           id: userData.id,

@@ -82,7 +82,7 @@ let AuthController = class AuthController {
                 const accesspayload = {
                     id: userData.id,
                     role: userData.role,
-                    duration: '20s',
+                    duration: '300s',
                 };
                 const refreshpayload = {
                     id: userData.id,
@@ -174,7 +174,7 @@ let AuthController = class AuthController {
         });
     }
     async registerPushtoken(authContext, registerToken) {
-        const register = this.prisma.getClient().pushToken.create({
+        const register = await this.prisma.getClient().pushToken.create({
             data: { token: registerToken.token, userId: authContext.user.id },
         });
         return register;
@@ -219,7 +219,8 @@ __decorate([
 __decorate([
     (0, common_1.Post)('/register-token'),
     openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(reister_push_token_schemas_1.RegisterPushTokenSchema))),
+    __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
+    __param(1, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(reister_push_token_schemas_1.RegisterPushTokenSchema))),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [auth_context_1.AuthContext,
         register_push_token_dto_1.RegisterPushTokenDTO]),

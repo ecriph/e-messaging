@@ -3,11 +3,14 @@ import { CreateMessageDTO } from '@/shared/messages/create-message/create-messag
 import { ListMessageDTO } from '@/shared/messages/list-message/list-message.dto';
 import { AuthContext } from 'src/auth/auth-context';
 import { EventGateway } from 'src/event/event.gateway';
+import { PushNotificationService } from 'src/internals/api/push-notification/push-notification.service';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
+import { ResourceNotFoundException } from 'src/internals/server/resource-not-found.exception';
 export declare class MessageController {
     private readonly prisma;
     private readonly event;
-    constructor(prisma: PrismaClientService, event: EventGateway);
+    private readonly sendNotification;
+    constructor(prisma: PrismaClientService, event: EventGateway, sendNotification: PushNotificationService);
     getUsers(authContext: AuthContext): Promise<({
         conversations: {
             id: string;
@@ -59,7 +62,7 @@ export declare class MessageController {
         createdAt: Date;
         updatedAt: Date;
     }[]>;
-    createMessage(authContext: AuthContext, sendMessage: CreateMessageDTO): Promise<{
+    createMessage(authContext: AuthContext, sendMessage: CreateMessageDTO): Promise<ResourceNotFoundException | {
         id: string;
         content: string;
         senderId: string;
