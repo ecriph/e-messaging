@@ -31,10 +31,10 @@ api.interceptors.request.use(
       // console.log('JWT Expiry:', jwtExpiry);
       // console.log('UserId:', decode?.id);
       // console.log('Role:', decode?.role);
-      // console.log('token:', token);
+      console.log('token:', token);
       // console.log('timestamp:', currentTimestamp);
       // console.log('Is Token Expired:', isExpired);
-      // console.log('refreshToken:', refreshToken);
+      console.log('refreshToken:', refreshToken);
 
       // if (!isExpired) {
       //   config.headers.Authorization = `Bearer ${token}`;
@@ -43,7 +43,7 @@ api.interceptors.request.use(
 
       const response = await axios.post(
         `${EnvironmentVariables.MAIN_API_URL}/auth/refresh-token`,
-        { refreshToken: refreshToken }
+        { refreshToken }
       );
 
       console.log('Refresh Token Response:', response.data);

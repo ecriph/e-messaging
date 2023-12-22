@@ -56,6 +56,7 @@ const LoginScreen = (props: Props) => {
           const { token, refresh_token, fullname, userId } = response.data;
           AsyncStorage.setItem('token', token);
           AsyncStorage.setItem('refresh_token', refresh_token);
+          console.log(refresh_token);
           setLoading(false);
           dispatch(LOGIN_USER({ fullname: fullname, userId: userId }));
         }

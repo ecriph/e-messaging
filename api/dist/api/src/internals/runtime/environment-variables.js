@@ -31,6 +31,7 @@ const schema = zod_1.z
     ]),
     DATABASE_URL: zod_1.z.string(),
     JWT_SECRET: zod_1.z.string(),
+    EXPO_ACCESS_TOKEN: zod_1.z.string(),
 })
     .required();
 const environmentVariablesValidationResult = schema.parse(Object.assign({}, process.env));

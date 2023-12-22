@@ -24,7 +24,9 @@ const common_1 = require("@nestjs/common");
 const auth_context_1 = require("../auth/auth-context");
 const auth_context_decorator_1 = require("../auth/auth-context.decorator");
 const event_gateway_1 = require("../event/event.gateway");
+const push_notification_service_1 = require("../internals/api/push-notification/push-notification.service");
 const prisma_client_service_1 = require("../internals/database/prisma-client.service");
+const resource_not_found_exception_1 = require("../internals/server/resource-not-found.exception");
 const validation_pipe_1 = require("../internals/validation/validation.pipe");
 function lastMessage(conversation) {
     return Object.assign(Object.assign({}, conversation), { messages: conversation.messages.length > 0
@@ -36,9 +38,10 @@ function getUserNameRow(names, userId) {
     return filteredName ? filteredName.fullname : '';
 }
 let MessageController = class MessageController {
-    constructor(prisma, event) {
+    constructor(prisma, event, sendNotification) {
         this.prisma = prisma;
         this.event = event;
+        this.sendNotification = sendNotification;
     }
     async getUsers(authContext) {
         const users = await this.prisma.getClient().user.findMany({
@@ -69,15 +72,24 @@ let MessageController = class MessageController {
         return getMessages;
     }
     async createMessage(authContext, sendMessage) {
-        const message = await this.prisma.getClient().message.create({
-            data: {
-                content: sendMessage.content,
-                senderId: authContext.user.id,
-                conversationId: sendMessage.conversationId,
-            },
+        return await this.prisma.getClient().$transaction(async (tx) => {
+            const message = await tx.message.create({
+                data: {
+                    content: sendMessage.content,
+                    senderId: authContext.user.id,
+                    conversationId: sendMessage.conversationId,
+                },
+            });
+            const getToken = await tx.pushToken.findUnique({
+                where: { userId: authContext.user.id },
+            });
+            if (!getToken)
+                return new resource_not_found_exception_1.ResourceNotFoundException();
+            const pushToken = [getToken.token];
+            this.event.sendMessage(message);
+            await this.sendNotification.sendPushNotification(pushToken, sendMessage.content);
+            return message;
         });
-        this.event.sendMessage(message);
-        return message;
     }
     async createConversation(authContext, createConversation) {
         return this.prisma.getClient().$transaction(async (tx) => {
@@ -151,7 +163,7 @@ __decorate([
 ], MessageController.prototype, "getMessages", null);
 __decorate([
     (0, common_1.Post)('/create/message'),
-    openapi.ApiResponse({ status: 201 }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
     __param(1, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(create_message_schemas_1.CreateMessageSchema))),
     __metadata("design:type", Function),
@@ -172,6 +184,7 @@ __decorate([
 exports.MessageController = MessageController = __decorate([
     (0, common_1.Controller)({ path: 'message', version: '1' }),
     __metadata("design:paramtypes", [prisma_client_service_1.PrismaClientService,
-        event_gateway_1.EventGateway])
+        event_gateway_1.EventGateway,
+        push_notification_service_1.PushNotificationService])
 ], MessageController);
 //# sourceMappingURL=message.controller.js.map
