@@ -95,9 +95,18 @@ export class MessageController {
         },
       });
 
-      const getToken = await tx.pushToken.findFirst({
-        where: { userId: authContext.user.id },
+      const conversation = await tx.conversation.findFirst({
+        where: { id: sendMessage.conversationId },
       });
+      const recipientId =
+        conversation?.userId === authContext.user.id
+          ? conversation.recipientId
+          : conversation?.userId;
+
+      const getToken = await tx.pushToken.findFirst({
+        where: { userId: recipientId },
+      });
+
       if (!getToken) return new ResourceNotFoundException();
 
       const pushToken: string[] = [getToken.token];
