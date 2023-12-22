@@ -25,7 +25,7 @@ model User {
 
 model PushToken {
   id     String @id @default(uuid())
-  userId String
+  userId String @unique
   token  String
 }
 
