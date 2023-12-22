@@ -98,13 +98,17 @@ export class MessageController {
       const conversation = await tx.conversation.findFirst({
         where: { id: sendMessage.conversationId },
       });
-      const recipientId =
-        conversation?.userId === authContext.user.id
-          ? conversation.recipientId
-          : conversation?.userId;
+      if (!conversation) return;
+      const recipient =
+        conversation.userId === authContext.user.id
+          ? {
+              id: conversation.recipientId,
+              username: conversation.recipientName,
+            }
+          : { id: conversation.userId, username: conversation.userName };
 
       const getToken = await tx.pushToken.findUnique({
-        where: { userId: recipientId },
+        where: { userId: recipient.id },
       });
 
       if (!getToken) return new ResourceNotFoundException();
@@ -115,7 +119,7 @@ export class MessageController {
       await this.sendNotification.sendPushNotification(
         getToken.token,
         sendMessage.content,
-        'Prince',
+        recipient.username,
       );
 
       return message;
