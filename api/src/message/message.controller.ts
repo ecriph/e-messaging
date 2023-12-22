@@ -95,7 +95,7 @@ export class MessageController {
         },
       });
 
-      const getToken = await tx.pushToken.findUnique({
+      const getToken = await tx.pushToken.findFirst({
         where: { userId: authContext.user.id },
       });
       if (!getToken) return new ResourceNotFoundException();
