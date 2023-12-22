@@ -113,14 +113,12 @@ export class MessageController {
 
       if (!getToken) return new ResourceNotFoundException();
 
-      // const pushToken: string[] = [getToken.token];
-
-      this.event.sendMessage(message);
       await this.sendNotification.sendPushNotification(
         getToken.token,
         sendMessage.content,
         recipient.username,
       );
+      this.event.sendMessage(message);
 
       return message;
     });
