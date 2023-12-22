@@ -83,7 +83,7 @@ export function useMainApi() {
       } else {
         // Handle other unexpected responses
         return {
-          failure: TransportFailure.UnexpectedResponse + error.response.status,
+          failure: TransportFailure.UnexpectedResponse,
         };
       }
     }
