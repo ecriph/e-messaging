@@ -26,12 +26,19 @@ const auth_context_decorator_1 = require("../auth/auth-context.decorator");
 const event_gateway_1 = require("../event/event.gateway");
 const push_notification_service_1 = require("../internals/api/push-notification/push-notification.service");
 const prisma_client_service_1 = require("../internals/database/prisma-client.service");
-const resource_not_found_exception_1 = require("../internals/server/resource-not-found.exception");
 const validation_pipe_1 = require("../internals/validation/validation.pipe");
 function lastMessage(conversation) {
     return Object.assign(Object.assign({}, conversation), { messages: conversation.messages.length > 0
             ? conversation.messages[conversation.messages.length - 1]
             : [] });
+}
+function addToRow(message, token) {
+    return Object.assign(Object.assign({}, message), { pushToken: token });
+}
+function addTokenToDTO(message) {
+    return message.map((p) => {
+        return Object.assign(Object.assign({}, p), { pushToken: '' });
+    });
 }
 function getUserNameRow(names, userId) {
     const filteredName = names.find((user) => user.id === userId);
@@ -69,7 +76,7 @@ let MessageController = class MessageController {
                 conversationId: listMessage.conversationId,
             },
         });
-        return getMessages;
+        return addTokenToDTO(getMessages);
     }
     async createMessage(authContext, sendMessage) {
         return await this.prisma.getClient().$transaction(async (tx) => {
@@ -80,15 +87,30 @@ let MessageController = class MessageController {
                     conversationId: sendMessage.conversationId,
                 },
             });
-            const getToken = await tx.pushToken.findUnique({
-                where: { userId: authContext.user.id },
+            const conversation = await tx.conversation.findFirst({
+                where: { id: sendMessage.conversationId },
             });
-            if (!getToken)
-                return new resource_not_found_exception_1.ResourceNotFoundException();
-            const pushToken = [getToken.token];
-            this.event.sendMessage(message);
-            await this.sendNotification.sendPushNotification(pushToken, sendMessage.content);
-            return message;
+            if (!conversation)
+                return;
+            const recipient = conversation.userId === authContext.user.id
+                ? {
+                    id: conversation.recipientId,
+                    username: conversation.recipientName,
+                }
+                : { id: conversation.userId, username: conversation.userName };
+            const getToken = await tx.pushToken.findUnique({
+                where: { userId: recipient.id },
+            });
+            let pushToken;
+            if (!getToken) {
+                pushToken = '';
+            }
+            else {
+                pushToken = getToken.token;
+            }
+            const addToken = addToRow(message, pushToken);
+            this.event.sendMessage(addToken);
+            return addToken;
         });
     }
     async createConversation(authContext, createConversation) {
@@ -163,7 +185,7 @@ __decorate([
 ], MessageController.prototype, "getMessages", null);
 __decorate([
     (0, common_1.Post)('/create/message'),
-    openapi.ApiResponse({ status: 201, type: Object }),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
     __param(1, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(create_message_schemas_1.CreateMessageSchema))),
     __metadata("design:type", Function),

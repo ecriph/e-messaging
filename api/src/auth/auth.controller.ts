@@ -58,7 +58,7 @@ export class AuthController {
     return this.prisma.getClient().$transaction(async (tx) => {
       const userData = await tx.user.findUnique({
         where: { email: userLogin.email },
-        include: { messages: true, conversations: true },
+        include: { conversations: true },
       });
 
       if (!userData) {
@@ -95,7 +95,6 @@ export class AuthController {
           return {
             token: accessToken.token,
             refresh_token: refreshToken.token,
-            messages: userData.messages,
             conversations: userData.conversations,
             fullname: userData.fullname,
             userId: userData.id,

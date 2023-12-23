@@ -5,4 +5,5 @@ export declare class MessageDTO {
     conversationId: string;
     createdAt: Date;
     updatedAt: Date;
+    pushToken: string;
 }

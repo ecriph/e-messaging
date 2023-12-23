@@ -10,7 +10,7 @@ class UserLoginDTO {
 exports.UserLoginDTO = UserLoginDTO;
 class UserLoginResponseDTO {
     static _OPENAPI_METADATA_FACTORY() {
-        return { token: { required: true, type: () => String }, refresh_token: { required: true, type: () => String }, messages: { required: true, type: () => [require("../../messages/message.dto").MessageDTO] }, conversations: { required: true, type: () => [require("../../messages/conversation.dto").ConversationDTO] }, fullname: { required: true, type: () => String }, userId: { required: true, type: () => String } };
+        return { token: { required: true, type: () => String }, refresh_token: { required: true, type: () => String }, conversations: { required: true, type: () => [require("../../messages/conversation.dto").ConversationDTO] }, fullname: { required: true, type: () => String }, userId: { required: true, type: () => String } };
     }
 }
 exports.UserLoginResponseDTO = UserLoginResponseDTO;
