@@ -11,6 +11,7 @@ import { HeaderText4, SubHeaderText } from '../../internals/ui-kit/text';
 import { PrimaryButton, SecondaryButton } from '../../internals/ui-kit/button';
 import { Colors } from '../../internals/ui-kit/theme';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ImageWrapper = styled(Image)`
   width: ${({ width }) => width || '170px'};
@@ -36,7 +37,11 @@ export default function HomeScreen() {
           <FlexColumnContainer>
             <PrimaryButton
               text="Login"
-              onPress={() => navigation.navigate('LoginScreen')}
+              onPress={() => {
+                console.log('cleared');
+                AsyncStorage.clear();
+                navigation.navigate('LoginScreen');
+              }}
             />
             <SecondaryButton
               text="Create Account"

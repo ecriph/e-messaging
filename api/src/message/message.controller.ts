@@ -101,11 +101,11 @@ export class MessageController {
       if (!conversation) return;
       const recipient =
         conversation.userId === authContext.user.id
-          ? {
+          ? { id: conversation.userId, username: conversation.userName }
+          : {
               id: conversation.recipientId,
               username: conversation.recipientName,
-            }
-          : { id: conversation.userId, username: conversation.userName };
+            };
 
       const getToken = await tx.pushToken.findUnique({
         where: { userId: recipient.id },
