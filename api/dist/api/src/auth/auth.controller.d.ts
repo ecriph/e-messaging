@@ -23,5 +23,5 @@ export declare class AuthController {
         id: string;
         userId: string;
         token: string;
-    }>;
+    } | undefined>;
 }

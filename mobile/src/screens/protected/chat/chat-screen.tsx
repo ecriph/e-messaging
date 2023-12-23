@@ -116,12 +116,15 @@ const ChatScreen = ({ route }: Props) => {
           if (messages.failure) {
             Alert.alert(messages.failure);
           } else {
-            sendPushNotification(
-              messages.data.pushToken,
-              messages.data.content,
-              user.fullname
-            );
-            console.log('token' + messages.data.pushToken);
+            if (messages.data.pushToken === '') {
+              console.log('empty pushtoken');
+            } else {
+              sendPushNotification(
+                messages.data.pushToken,
+                messages.data.content,
+                user.fullname
+              );
+            }
           }
         } catch (error) {
           console.error('Error fetching messages:', error);

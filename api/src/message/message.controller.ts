@@ -11,7 +11,6 @@ import { WithAuthContext } from 'src/auth/auth-context.decorator';
 import { EventGateway } from 'src/event/event.gateway';
 import { PushNotificationService } from 'src/internals/api/push-notification/push-notification.service';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
-import { ResourceNotFoundException } from 'src/internals/server/resource-not-found.exception';
 import { ValidationPipe } from 'src/internals/validation/validation.pipe';
 
 function lastMessage(conversation: Conversation & { messages: Message[] }) {
@@ -24,11 +23,16 @@ function lastMessage(conversation: Conversation & { messages: Message[] }) {
   };
 }
 
-function addToKenToRow(message: Message, token: string) {
+function addToRow(message: Message, token: string) {
   return {
     ...message,
     pushToken: token,
   };
+}
+function addTokenToDTO(message: Message[]) {
+  return message.map((p) => {
+    return { ...p, pushToken: '' };
+  });
 }
 
 function getUserNameRow(names: User[], userId: string) {
@@ -84,7 +88,7 @@ export class MessageController {
       },
     });
 
-    return getMessages;
+    return addTokenToDTO(getMessages);
   }
 
   @Post('/create/message')
@@ -117,10 +121,24 @@ export class MessageController {
       const getToken = await tx.pushToken.findUnique({
         where: { userId: recipient.id },
       });
+      let pushToken;
+      if (!getToken) {
+        pushToken = '';
+      } else {
+        pushToken = getToken.token;
+      }
 
-      if (!getToken) return new ResourceNotFoundException();
+      const addToken = addToRow(message, pushToken);
+      // const pushToken: string[] = [getToken.token];
+      this.event.sendMessage(addToken);
 
-      return addToKenToRow(message, getToken.token);
+      // await this.sendNotification.sendPushNotification(
+      //   getToken.token,
+      //   sendMessage.content,
+      //   recipient.username,
+      // );
+
+      return addToken;
     });
   }
 

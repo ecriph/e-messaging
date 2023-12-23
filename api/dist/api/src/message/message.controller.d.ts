@@ -5,7 +5,6 @@ import { AuthContext } from 'src/auth/auth-context';
 import { EventGateway } from 'src/event/event.gateway';
 import { PushNotificationService } from 'src/internals/api/push-notification/push-notification.service';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
-import { ResourceNotFoundException } from 'src/internals/server/resource-not-found.exception';
 export declare class MessageController {
     private readonly prisma;
     private readonly event;
@@ -55,6 +54,7 @@ export declare class MessageController {
         updatedAt: Date;
     }[]>;
     getMessages(authContext: AuthContext, listMessage: ListMessageDTO): Promise<{
+        pushToken: string;
         id: string;
         content: string;
         senderId: string;
@@ -62,14 +62,15 @@ export declare class MessageController {
         createdAt: Date;
         updatedAt: Date;
     }[]>;
-    createMessage(authContext: AuthContext, sendMessage: CreateMessageDTO): Promise<ResourceNotFoundException | {
+    createMessage(authContext: AuthContext, sendMessage: CreateMessageDTO): Promise<{
+        pushToken: string;
         id: string;
         content: string;
         senderId: string;
         conversationId: string;
         createdAt: Date;
         updatedAt: Date;
-    }>;
+    } | undefined>;
     createConversation(authContext: AuthContext, createConversation: createConversationDTO): Promise<{
         messages: {
             id: string;

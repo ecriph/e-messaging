@@ -72,7 +72,7 @@ let AuthController = class AuthController {
         return this.prisma.getClient().$transaction(async (tx) => {
             const userData = await tx.user.findUnique({
                 where: { email: userLogin.email },
-                include: { messages: true, conversations: true },
+                include: { conversations: true },
             });
             if (!userData) {
                 throw new resource_not_found_exception_1.ResourceNotFoundException();
@@ -99,7 +99,6 @@ let AuthController = class AuthController {
                     return {
                         token: accessToken.token,
                         refresh_token: refreshToken.token,
-                        messages: userData.messages,
                         conversations: userData.conversations,
                         fullname: userData.fullname,
                         userId: userData.id,
@@ -174,10 +173,17 @@ let AuthController = class AuthController {
         });
     }
     async registerPushtoken(authContext, registerToken) {
-        const register = await this.prisma.getClient().pushToken.create({
-            data: { token: registerToken.token, userId: authContext.user.id },
+        return await this.prisma.getClient().$transaction(async (tx) => {
+            const findUser = await tx.pushToken.findFirst({
+                where: { userId: authContext.user.id },
+            });
+            if (findUser)
+                return;
+            const register = await this.prisma.getClient().pushToken.create({
+                data: { token: registerToken.token, userId: authContext.user.id },
+            });
+            return register;
         });
-        return register;
     }
 };
 exports.AuthController = AuthController;
