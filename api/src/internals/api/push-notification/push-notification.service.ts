@@ -7,11 +7,7 @@ export class PushNotificationService {
     accessToken: EnvironmentVariables.EXPO_ACCESS_TOKEN,
   });
 
-  async sendPushNotification(
-    deviceToken: string,
-    message: string,
-    username: string,
-  ) {
+  async sendPushNotification(deviceToken: string, message: string) {
     // const messages: ExpoPushMessage[] = [];
 
     // for (const token of deviceTokens) {

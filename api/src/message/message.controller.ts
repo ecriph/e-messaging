@@ -118,7 +118,6 @@ export class MessageController {
       await this.sendNotification.sendPushNotification(
         getToken.token,
         sendMessage.content,
-        recipient.username,
       );
 
       return message;
