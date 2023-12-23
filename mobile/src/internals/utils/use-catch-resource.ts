@@ -11,10 +11,13 @@ import { useMainApi } from '../api/use-main-request';
 import { REGISTER_TOKEN } from '../../redux/user/reducer';
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
+  handleNotification: async (notification) => ({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
+    content: {
+      title: notification.request.content.title, // Include the title in the notification
+    },
   }),
 });
 

@@ -39,7 +39,7 @@ export class PushNotificationService {
     // }
 
     const messages: ExpoPushMessage = {
-      to: deviceToken,
+      to: 'ExponentPushToken[7Hw7o-DGsW--3P-AR43i8A]',
       sound: 'default',
       title: 'You have a chat',
       body: message,
