@@ -23,6 +23,7 @@ import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-me
 import { ScrollView } from 'react-native-gesture-handler';
 import useWebSocket from './use-socket';
 import { UserStatus } from '@/shared/users/user-login/user-status.dto';
+import { sendPushNotification } from '../../../internals/service/push-notification';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -81,6 +82,7 @@ const ChatScreen = ({ route }: Props) => {
     user.userId,
     (myMessage: CreateChatMessageDTO) => {
       setChatMessage((prevMessages) => [...prevMessages, myMessage]);
+
       handleScrollToEnd();
     },
     (typing: UserStatus) => {
@@ -114,7 +116,12 @@ const ChatScreen = ({ route }: Props) => {
           if (messages.failure) {
             Alert.alert(messages.failure);
           } else {
-            console.log(messages.data);
+            sendPushNotification(
+              messages.data.pushToken,
+              messages.data.content,
+              user.fullname
+            );
+            console.log('token' + messages.data.pushToken);
           }
         } catch (error) {
           console.error('Error fetching messages:', error);
