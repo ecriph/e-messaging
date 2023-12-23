@@ -48,3 +48,27 @@ export async function registerForPushNotificationsAsync() {
     console.log('notification error: ' + err);
   }
 }
+
+export async function sendPushNotification(
+  expoPushToken: string,
+  chat: string,
+  username: string
+) {
+  const message = {
+    to: expoPushToken,
+    sound: 'default',
+    title: `From ${username}`,
+    body: chat,
+    data: { someData: 'goes here' },
+  };
+
+  await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  });
+}

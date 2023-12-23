@@ -38,7 +38,6 @@ export default function HomeScreen() {
             <PrimaryButton
               text="Login"
               onPress={() => {
-                console.log('cleared');
                 AsyncStorage.clear();
                 navigation.navigate('LoginScreen');
               }}
