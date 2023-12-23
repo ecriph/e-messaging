@@ -113,8 +113,6 @@ export class MessageController {
 
       if (!getToken) return new ResourceNotFoundException();
 
-      // const pushToken: string[] = [getToken.token];
-
       await this.sendNotification.sendPushNotification(
         getToken.token,
         sendMessage.content,
