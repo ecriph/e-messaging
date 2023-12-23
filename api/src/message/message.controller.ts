@@ -24,6 +24,13 @@ function lastMessage(conversation: Conversation & { messages: Message[] }) {
   };
 }
 
+function addToKenToRow(message: Message, token: string) {
+  return {
+    ...message,
+    pushToken: token,
+  };
+}
+
 function getUserNameRow(names: User[], userId: string) {
   const filteredName = names.find((user) => user.id === userId);
   return filteredName ? filteredName.fullname : '';
@@ -113,7 +120,7 @@ export class MessageController {
 
       if (!getToken) return new ResourceNotFoundException();
 
-      return { message, pushToken: getToken.token };
+      return addToKenToRow(message, getToken.token);
     });
   }
 
