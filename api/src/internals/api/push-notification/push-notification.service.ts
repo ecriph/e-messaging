@@ -45,7 +45,7 @@ export class PushNotificationService {
     const messages: ExpoPushMessage = {
       to: deviceToken,
       sound: 'default',
-      title: `New Message from ${username}`,
+      title: 'You have a chat',
       body: message,
       data: { message },
     };
