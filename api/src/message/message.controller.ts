@@ -23,18 +23,6 @@ function lastMessage(conversation: Conversation & { messages: Message[] }) {
   };
 }
 
-function addToRow(message: Message, token: string) {
-  return {
-    ...message,
-    pushToken: token,
-  };
-}
-function addTokenToDTO(message: Message[]) {
-  return message.map((p) => {
-    return { ...p, pushToken: '' };
-  });
-}
-
 function getUserNameRow(names: User[], userId: string) {
   const filteredName = names.find((user) => user.id === userId);
   return filteredName ? filteredName.fullname : '';
@@ -88,7 +76,7 @@ export class MessageController {
       },
     });
 
-    return addTokenToDTO(getMessages);
+    return getMessages;
   }
 
   @Post('/create/message')
@@ -128,9 +116,7 @@ export class MessageController {
         pushToken = getToken.token;
       }
 
-      const addToken = addToRow(message, pushToken);
-
-      this.event.sendMessage(addToken);
+      this.event.sendMessage(message);
 
       await this.sendNotification.sendPushNotification(
         pushToken,
@@ -138,7 +124,7 @@ export class MessageController {
         recipient.username,
       );
 
-      return addToken;
+      return message;
     });
   }
 
