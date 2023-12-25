@@ -129,14 +129,14 @@ export class MessageController {
       }
 
       const addToken = addToRow(message, pushToken);
-      // const pushToken: string[] = [getToken.token];
+
       this.event.sendMessage(addToken);
 
-      // await this.sendNotification.sendPushNotification(
-      //   getToken.token,
-      //   sendMessage.content,
-      //   recipient.username,
-      // );
+      await this.sendNotification.sendPushNotification(
+        pushToken,
+        sendMessage.content,
+        recipient.username,
+      );
 
       return addToken;
     });

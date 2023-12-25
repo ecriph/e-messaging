@@ -7,7 +7,11 @@ export class PushNotificationService {
     accessToken: EnvironmentVariables.EXPO_ACCESS_TOKEN,
   });
 
-  async sendPushNotification(deviceToken: string, message: string) {
+  async sendPushNotification(
+    deviceToken: string,
+    message: string,
+    username: string,
+  ) {
     // const messages: ExpoPushMessage[] = [];
 
     // for (const token of deviceTokens) {
@@ -39,11 +43,11 @@ export class PushNotificationService {
     // }
 
     const messages: ExpoPushMessage = {
-      to: 'ExponentPushToken[7Hw7o-DGsW--3P-AR43i8A]',
+      to: deviceToken,
       sound: 'default',
-      title: 'You have a chat',
+      title: `From ${username}`,
       body: message,
-      data: { message },
+      data: { someData: 'goes here' },
     };
 
     try {
