@@ -12,7 +12,7 @@ import { Font, FontSize } from '../../../internals/ui-kit/theme';
 import BackArrow from '../../../internals/ui-kit/back-arrow';
 import { Formik } from 'formik';
 import { UserRootState } from '../../../redux/user/reducer';
-import { ChatContainer } from './use-chat-component';
+import { ChatContainer } from './chat-component';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
