@@ -10,13 +10,13 @@ class PushNotificationService {
             accessToken: environment_variables_1.EnvironmentVariables.EXPO_ACCESS_TOKEN,
         });
     }
-    async sendPushNotification(deviceToken, message) {
+    async sendPushNotification(deviceToken, message, username) {
         const messages = {
-            to: 'ExponentPushToken[7Hw7o-DGsW--3P-AR43i8A]',
+            to: deviceToken,
             sound: 'default',
-            title: 'You have a chat',
+            title: `From ${username}`,
             body: message,
-            data: { message },
+            data: { someData: 'goes here' },
         };
         try {
             await this.expo.sendPushNotificationsAsync([messages]);

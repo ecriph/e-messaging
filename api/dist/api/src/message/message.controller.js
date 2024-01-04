@@ -32,14 +32,6 @@ function lastMessage(conversation) {
             ? conversation.messages[conversation.messages.length - 1]
             : [] });
 }
-function addToRow(message, token) {
-    return Object.assign(Object.assign({}, message), { pushToken: token });
-}
-function addTokenToDTO(message) {
-    return message.map((p) => {
-        return Object.assign(Object.assign({}, p), { pushToken: '' });
-    });
-}
 function getUserNameRow(names, userId) {
     const filteredName = names.find((user) => user.id === userId);
     return filteredName ? filteredName.fullname : '';
@@ -76,7 +68,7 @@ let MessageController = class MessageController {
                 conversationId: listMessage.conversationId,
             },
         });
-        return addTokenToDTO(getMessages);
+        return getMessages;
     }
     async createMessage(authContext, sendMessage) {
         return await this.prisma.getClient().$transaction(async (tx) => {
@@ -108,9 +100,9 @@ let MessageController = class MessageController {
             else {
                 pushToken = getToken.token;
             }
-            const addToken = addToRow(message, pushToken);
-            this.event.sendMessage(addToken);
-            return addToken;
+            this.event.sendMessage(message);
+            await this.sendNotification.sendPushNotification(pushToken, sendMessage.content, recipient.username);
+            return message;
         });
     }
     async createConversation(authContext, createConversation) {

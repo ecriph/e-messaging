@@ -54,7 +54,6 @@ export declare class MessageController {
         updatedAt: Date;
     }[]>;
     getMessages(authContext: AuthContext, listMessage: ListMessageDTO): Promise<{
-        pushToken: string;
         id: string;
         content: string;
         senderId: string;
@@ -63,7 +62,6 @@ export declare class MessageController {
         updatedAt: Date;
     }[]>;
     createMessage(authContext: AuthContext, sendMessage: CreateMessageDTO): Promise<{
-        pushToken: string;
         id: string;
         content: string;
         senderId: string;

@@ -177,12 +177,18 @@ let AuthController = class AuthController {
             const findUser = await tx.pushToken.findFirst({
                 where: { userId: authContext.user.id },
             });
-            if (findUser)
-                return;
-            const register = await this.prisma.getClient().pushToken.create({
-                data: { token: registerToken.token, userId: authContext.user.id },
-            });
-            return register;
+            if (findUser) {
+                await tx.pushToken.update({
+                    where: { userId: authContext.user.id },
+                    data: { token: registerToken.token },
+                });
+            }
+            else {
+                const register = await tx.pushToken.create({
+                    data: { token: registerToken.token, userId: authContext.user.id },
+                });
+                return register;
+            }
         });
     }
 };
