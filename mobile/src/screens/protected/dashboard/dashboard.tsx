@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Circle,
   FlexColumnContainer,
   FlexRowContainer,
   MainContainer,
@@ -10,20 +9,17 @@ import {
   HeaderText1,
   HeaderText2,
   HeaderText3,
-  NormalText,
   SmallText,
 } from '../../../internals/ui-kit/text';
-import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
+import { Colors, Font } from '../../../internals/ui-kit/theme';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { Divider } from '../../../internals/ui-kit/divider';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Category } from '../../../internals/data/conversation';
-import { FontAwesome } from '@expo/vector-icons';
 import { ChatList } from './dashboard-chat-list';
 import { UsersList } from './dashboard-user-list';
 import { LOGOUT_USER } from '../../../redux/user/reducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useMainApi } from '../../../internals/api/use-main-request';
+import { api } from '../../../internals/api/use-main-axios';
 
 interface DashboardProps {}
 
@@ -44,7 +40,6 @@ const DashboardScreen = (props: DashboardProps) => {
   const [selected, setSelected] = useState<string>(CategoryList.CHATS);
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
-  const { postRequest } = useMainApi();
 
   const registerToken = async () => {
     if (!user?.token) {
@@ -54,11 +49,7 @@ const DashboardScreen = (props: DashboardProps) => {
 
     try {
       const payload = { token: user?.token };
-      const response = await postRequest('/auth/register-token', payload);
-
-      console.log('Push token:', user?.token);
-      console.log('Failed push token:', response.failure);
-
+      const response = await api.post('/auth/register-token', payload);
       return response;
     } catch (err) {
       console.error(

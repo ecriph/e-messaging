@@ -18,6 +18,9 @@ import ErrorOverlayModal from '../../internals/ui-kit/error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TransportFailure } from '../../internals/transport/transport-failure';
 import * as Yup from 'yup';
+import socket from '../../internals/service/socket/socket-services';
+import { api } from '../../internals/api/use-main-axios';
+import { ACCESSTOKEN, REFRESHTOKEN } from '../../internals/data/const';
 
 type Props = {};
 interface LoginProps {
@@ -30,7 +33,6 @@ const LoginScreen = (props: Props) => {
   const initialValues: LoginProps = { email: '', password: '' };
   const dispatch = useAppDispatch();
   const chat = useAppSelector((state) => state.chat);
-  const { postRequest } = useMainApi();
 
   const LoginValidation = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('*required'),
@@ -44,22 +46,24 @@ const LoginScreen = (props: Props) => {
       onSubmit={async (values, { setErrors }) => {
         setLoading(true);
         const payload = { email: values.email, password: values.password };
-        const response = await postRequest('auth/login', payload);
-        if (response.failure) {
-          response.failure === TransportFailure.AbortedAndDealtWith &&
-            setErrors({ password: 'Invalid Password' });
-
-          response.failure === TransportFailure.NotFound &&
-            setErrors({ email: 'Invalid Email' });
-          setLoading(false);
-        } else {
-          const { token, refresh_token, fullname, userId } = response.data;
-          AsyncStorage.setItem('token', token);
-          AsyncStorage.setItem('refresh_token', refresh_token);
-          console.log(refresh_token);
-          setLoading(false);
-          dispatch(LOGIN_USER({ fullname: fullname, userId: userId }));
-        }
+        await api
+          .post('auth/login', payload)
+          .then((resp) => {
+            const { token, refresh_token, fullname, userId } = resp.data;
+            AsyncStorage.setItem(ACCESSTOKEN, token);
+            AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
+            console.log(refresh_token);
+            setLoading(false);
+            dispatch(LOGIN_USER({ fullname: fullname, userId: userId }));
+          })
+          .catch((err) => {
+            if (err === TransportFailure.AbortedAndDealtWith) {
+              setErrors({ password: 'Invalid Password' });
+            }
+            if (err === TransportFailure.NotFound) {
+              setErrors({ email: 'Invalid Email' });
+            }
+          });
       }}
     >
       {({

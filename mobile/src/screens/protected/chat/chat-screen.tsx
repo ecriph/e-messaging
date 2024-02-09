@@ -17,13 +17,13 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
 import { RouteProp } from '@react-navigation/native';
-import { useMainApi } from '../../../internals/api/use-main-request';
-import socket from '../../../internals/service/socket-services';
+import socket from '../../../internals/service/socket/socket-services';
 import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 import { ScrollView } from 'react-native-gesture-handler';
-import useWebSocket from './use-socket';
+import useWebSocket from '../../../internals/service/socket/use-socket';
 import { UserStatus } from '@/shared/users/user-login/user-status.dto';
 import { sendPushNotification } from '../../../internals/service/push-notification';
+import { api } from '../../../internals/api/use-main-axios';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -36,7 +36,6 @@ interface MessageProps {
 
 const ChatScreen = ({ route }: Props) => {
   const initialValues: MessageProps = { message: '' };
-  const { getRequest, postRequest } = useMainApi();
   const { conversationId, username } = route.params;
   const [chatMessage, setChatMessage] = useState<CreateChatMessageDTO[]>([]);
   const user = useAppSelector((state: UserRootState) => state.user);
@@ -58,31 +57,29 @@ const ChatScreen = ({ route }: Props) => {
       typing: true,
     });
   };
-  const getMessages = useCallback(async () => {
-    try {
-      const messages = await getRequest(
-        '/v1/message/list/message/' + conversationId
-      );
+  // const getMessages = useCallback(async () => {
+  //   try {
+  //     const messages = await getRequest(
+  //       '/v1/message/list/message/' + conversationId
+  //     );
 
-      if (messages.failure) {
-        Alert.alert(messages.failure);
-      } else {
-        setChatMessage(messages.body); // Assuming messages.body is an array
-      }
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    }
-  }, [getRequest, conversationId]);
+  //     if (messages.failure) {
+  //       Alert.alert(messages.failure);
+  //     } else {
+  //       setChatMessage(messages.body); // Assuming messages.body is an array
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching messages:', error);
+  //   }
+  // }, [getRequest, conversationId]);
 
-  useEffect(() => {
-    getMessages();
-  }, [getMessages]);
+  // useEffect(() => {
+  //   getMessages();
+  // }, [getMessages]);
 
   useWebSocket(
-    user.userId,
     (myMessage: CreateChatMessageDTO) => {
       setChatMessage((prevMessages) => [...prevMessages, myMessage]);
-
       handleScrollToEnd();
     },
     (typing: UserStatus) => {
@@ -107,18 +104,13 @@ const ChatScreen = ({ route }: Props) => {
           content: values.message,
           conversationId: conversationId,
         };
-        try {
-          const messages = await postRequest(
-            '/v1/message/create/message',
-            payload
-          );
 
-          if (messages.failure) {
-            Alert.alert(messages.failure);
-          }
-        } catch (error) {
-          console.error('Error fetching messages:', error);
-        }
+        const messages = await api
+          .post('/v1/message/create/message', payload)
+          .then((resp) => {})
+          .catch((err) => {
+            Alert.alert(err);
+          });
 
         setChatMessage([...chatMessage, newMessage]);
         handleScrollToEnd();

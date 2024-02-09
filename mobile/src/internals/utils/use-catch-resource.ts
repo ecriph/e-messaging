@@ -7,7 +7,6 @@ import { confirmToken } from '../../redux/user/action';
 import { registerForPushNotificationsAsync } from '../service/push-notification';
 import * as Notifications from 'expo-notifications';
 import { Notification, Subscription } from 'expo-notifications';
-import { useMainApi } from '../api/use-main-request';
 import { REGISTER_TOKEN } from '../../redux/user/reducer';
 
 Notifications.setNotificationHandler({
@@ -81,6 +80,7 @@ function useCatchResource(store: any) {
 
     async function prepare() {
       try {
+        AsyncStorage.clear();
         await SplashScreen.preventAutoHideAsync();
 
         await loadResourcesAsync();

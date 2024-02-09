@@ -5,18 +5,14 @@ import {
   FlexRowContainer,
   PressableContainer,
 } from '../../../internals/ui-kit/container';
-import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
-import {
-  HeaderText1,
-  NormalText,
-  SmallText,
-} from '../../../internals/ui-kit/text';
+import { Colors, Font } from '../../../internals/ui-kit/theme';
+import { HeaderText1 } from '../../../internals/ui-kit/text';
 import { FontAwesome } from '@expo/vector-icons';
-import { useMainApi } from '../../../internals/api/use-main-request';
 import { Alert } from 'react-native';
 import { UserDTO } from '@/shared/users/user.dto';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { api } from '../../../internals/api/use-main-axios';
 
 interface ChatProps {
   onPress: () => void;
@@ -27,18 +23,18 @@ interface ChatProps {
 }
 
 export const UsersList = () => {
-  const { getRequest, postRequest } = useMainApi();
   const [_userList, setList] = useState<UserDTO[]>();
   const navigation = useNavigation();
 
   const getUserList = useCallback(async () => {
-    const getList = await getRequest('/v1/message/list/users');
-
-    if (getList.failure) {
-      Alert.alert(getList.failure);
-    } else {
-      setList(getList.body);
-    }
+    await api
+      .get('/v1/message/list/users')
+      .then((resp) => {
+        setList(resp.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   useEffect(() => {
@@ -61,19 +57,17 @@ export const UsersList = () => {
                 key={index}
                 onPress={async () => {
                   const payload = { recipientId: list.id };
-                  const startConvo = await postRequest(
-                    '/v1/message/create/conversation',
-                    payload
-                  );
-
-                  if (startConvo.failure) {
-                    Alert.alert(startConvo.failure);
-                  } else {
-                    navigation.navigate('ChatScreen', {
-                      conversationId: startConvo.data.id,
-                      username: startConvo.data.userName,
+                  await api
+                    .post('/v1/message/create/conversation', payload)
+                    .then((resp) => {
+                      navigation.navigate('ChatScreen', {
+                        conversationId: resp.data.id,
+                        username: resp.data.userName,
+                      });
+                    })
+                    .catch((err) => {
+                      Alert.alert(err);
                     });
-                  }
                 }}
               >
                 <FlexRowContainer

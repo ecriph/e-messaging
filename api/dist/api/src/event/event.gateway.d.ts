@@ -1,12 +1,9 @@
+import { OnGatewayInit } from '@nestjs/websockets';
 import { MessageDTO } from '@/shared/messages/message.dto';
 import { UserStatus } from '@/shared/users/user-login/user-status.dto';
-export declare class EventGateway {
+export declare class EventGateway implements OnGatewayInit {
     private readonly server;
-    private connectedUsers;
-    private unreadMessageCounts;
+    afterInit(): void;
     sendMessage(message: MessageDTO): void;
     handleTyping(status: UserStatus): void;
-    handleMessage(client: any, payload: any): void;
-    private updateUnreadMessageCount;
-    private sendUnreadMessageCount;
 }
