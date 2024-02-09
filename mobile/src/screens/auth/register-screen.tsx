@@ -11,7 +11,7 @@ import { Colors, Font } from '../../internals/ui-kit/theme';
 import { PrimaryInput } from '../../internals/ui-kit/input';
 import { Formik } from 'formik';
 import { SAVE_PERSONAL } from '../../redux/user/reducer';
-import { RegisterSecurity } from './use-register-security';
+import { RegisterSecurity } from './register-security';
 import { useAppDispatch } from '../../redux/hooks';
 import * as Yup from 'yup';
 

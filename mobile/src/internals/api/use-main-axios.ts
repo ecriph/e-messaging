@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EnvironmentVariables } from '../runtime/environment-vairables';
 import { TransportFailure } from '../transport/transport-failure';
-import JWT from 'expo-jwt';
+import { ACCESSTOKEN, REFRESHTOKEN } from '../data/const';
 
 const api = axios.create({
   baseURL: EnvironmentVariables.MAIN_API_URL, // Replace with your API URL
@@ -16,40 +16,16 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     try {
-      let token = await AsyncStorage.getItem('token');
-      let refreshToken = await AsyncStorage.getItem('refresh_token');
-
-      if (!token) {
+      const refreshToken = await AsyncStorage.getItem(REFRESHTOKEN);
+      const accessToken = await AsyncStorage.getItem(ACCESSTOKEN);
+      if (!refreshToken) {
         return config;
       }
-
-      // const decode = JWT.decode(token, EnvironmentVariables.JWT_SECRET);
-      // const jwtExpiry = decode?.exp as number;
-      // const currentTimestamp = Math.floor(Date.now() / 1000);
-      // const isExpired = jwtExpiry && jwtExpiry < currentTimestamp;
-
-      // console.log('JWT Expiry:', jwtExpiry);
-      // console.log('UserId:', decode?.id);
-      // console.log('Role:', decode?.role);
-      console.log('token:', token);
-      // console.log('timestamp:', currentTimestamp);
-      // console.log('Is Token Expired:', isExpired);
-      console.log('refreshToken:', refreshToken);
-
-      // if (!isExpired) {
-      //   config.headers.Authorization = `Bearer ${token}`;
-      //   return config;
-      // }
-
       const response = await axios.post(
         `${EnvironmentVariables.MAIN_API_URL}/auth/refresh-token`,
         { refreshToken }
       );
-
-      console.log('Refresh Token Response:', response.data);
-
-      AsyncStorage.setItem('token', response.data.accessToken);
-      config.headers.Authorization = `Bearer ${response.data.accessToken}`;
+      config.headers.Authorization = `Bearer ${response.data.access_token}`;
       return config;
     } catch (error) {
       console.error('Error in request:', error);
@@ -59,6 +35,33 @@ api.interceptors.request.use(
   (error) => {
     console.error('Error in request interceptor:', error);
     return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => {
+    if (response.status === 200 || response.status === 201) {
+      return Promise.resolve(response);
+    }
+    return Promise.resolve(response); // Don't forget to return the response for other status codes
+  },
+  (error) => {
+    console.log(error.response);
+    if (error.message === 'Network Error') {
+      return Promise.reject(TransportFailure.ConnectionFailure);
+    } else if (
+      error.response &&
+      error.response.status === 404 &&
+      error.response.headers['X-Resource-Not-Found'] === 'true'
+    ) {
+      return Promise.reject(TransportFailure.NotFound);
+    } else if (error.response && error.response.status === 403) {
+      return Promise.reject(TransportFailure.Forbidden);
+    } else if (error.response && error.response.status === 401) {
+      return Promise.reject(TransportFailure.AbortedAndDealtWith);
+    } else {
+      return Promise.reject(TransportFailure.UnexpectedResponse);
+    }
   }
 );
 

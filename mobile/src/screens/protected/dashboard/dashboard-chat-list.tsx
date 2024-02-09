@@ -14,35 +14,25 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 import { useAppSelector } from '../../../redux/hooks';
 import { Octicons } from '@expo/vector-icons';
-import { Alert } from 'react-native';
-import { useMainApi } from '../../../internals/api/use-main-request';
 import { ConversationResponseListDTO } from '@/shared/messages/conversation.dto';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { api } from '../../../internals/api/use-main-axios';
 
 export const ChatList = () => {
-  const { getRequest } = useMainApi();
   const [_convo, setConvo] = useState<ConversationResponseListDTO[]>();
   const navigation = useNavigation();
   const user = useAppSelector((state) => state.user);
 
-  const getUserDetail = async (userId: string) => {
-    const getUser = await getRequest('/v1/message/user-detail' + userId);
-
-    if (getUser.failure) {
-      Alert.alert(getUser.failure);
-    } else {
-      return getUser.body.fullname;
-    }
-  };
   const getConvo = useCallback(async () => {
-    const getList = await getRequest('/v1/message/list/conversation');
-
-    if (getList.failure) {
-      Alert.alert(getList.failure);
-    } else {
-      setConvo(getList.body);
-    }
+    await api
+      .get('/v1/message/list/conversation')
+      .then((resp) => {
+        setConvo(resp.data);
+      })
+      .catch((err) => {
+        console.log('Error: ', err);
+      });
   }, []);
 
   useEffect(() => {

@@ -12,6 +12,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { LOGIN_USER } from '../../redux/user/reducer';
 import * as Yup from 'yup';
+import { api } from '../../internals/api/use-main-axios';
+import { ACCESSTOKEN, REFRESHTOKEN } from '../../internals/data/const';
 
 interface RegisterProps {
   phone: string;
@@ -42,26 +44,24 @@ export const RegisterSecurity = () => {
           phone: values.phone,
           email: user.email,
         };
-        try {
-          const response = await postRequest('/auth/register', payload);
-
-          if (response.failure) {
-            response.failure === TransportFailure.AbortedAndDealtWith &&
-              setErrors({ phone: 'Invalid Password' });
-
-            response.failure === TransportFailure.NotFound &&
-              setErrors({ password: 'Invalid Email' });
-            setLoading(false);
-          } else {
-            const { token, refresh_token, userId } = response.data;
-            AsyncStorage.setItem('token', token);
-            AsyncStorage.setItem('refresh_token', refresh_token);
+        await api
+          .post('/auth/register', payload)
+          .then((resp) => {
+            const { token, refresh_token, userId } = resp.data;
+            AsyncStorage.setItem(ACCESSTOKEN, token);
+            AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
             setLoading(false);
             dispatch(LOGIN_USER({ fullname: user.fullname, userId: userId }));
-          }
-        } catch (error) {
-          console.error('Error fetching messages:', error);
-        }
+          })
+          .catch((err) => {
+            if (err === TransportFailure.AbortedAndDealtWith) {
+              setErrors({ phone: 'Invalid Password' });
+            }
+            if (err === TransportFailure.NotFound) {
+              setErrors({ password: 'Invalid Email' });
+              setLoading(false);
+            }
+          });
       }}
     >
       {({

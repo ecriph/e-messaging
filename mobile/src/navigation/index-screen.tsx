@@ -4,7 +4,7 @@ import { RootStackParamList } from './route-types';
 import HomeScreen from '../screens/home/home-screen';
 import RegisterScreen from '../screens/auth/register-screen';
 import LoginScreen from '../screens/auth/login-screen';
-import DashboardScreen from '../screens/protected/dashboard/dashboard-screen';
+import DashboardScreen from '../screens/protected/dashboard/dashboard';
 import ChatScreen from '../screens/protected/chat/chat-screen';
 import ProfileScreen from '../screens/protected/profile/profile-screen';
 import { useSelector } from 'react-redux';
