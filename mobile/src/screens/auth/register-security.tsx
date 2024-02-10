@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import {
   FlexColumnContainer,
+  FlexRowContainer,
   MainContainer,
 } from '../../internals/ui-kit/container';
-import { PasswordInput, PhoneNumberInput } from '../../internals/ui-kit/input';
+import {
+  PasswordInput,
+  PhoneNumberInput,
+  PrimaryInput,
+} from '../../internals/ui-kit/input';
 import { PrimaryButton } from '../../internals/ui-kit/button';
 import { Formik } from 'formik';
 import { useMainApi } from '../../internals/api/use-main-request';
@@ -14,6 +19,7 @@ import { LOGIN_USER } from '../../redux/user/reducer';
 import * as Yup from 'yup';
 import { api } from '../../internals/api/use-main-axios';
 import { ACCESSTOKEN, REFRESHTOKEN } from '../../internals/data/const';
+import BackArrow from '../../internals/ui-kit/back-arrow';
 
 interface RegisterProps {
   phone: string;
@@ -92,12 +98,17 @@ export const RegisterSecurity = () => {
           }
         >
           <FlexColumnContainer mt="45px">
-            <PhoneNumberInput
+            <FlexRowContainer justifyContent="flex-start" mb="0px">
+              <BackArrow />
+            </FlexRowContainer>
+            <PrimaryInput
               value={values.phone}
               onChangeText={handleChange('phone')}
               text="Phone number"
               error={errors.phone}
+              keyboardType="numeric"
             />
+
             <PasswordInput
               value={values.password}
               onChangeText={handleChange('password')}

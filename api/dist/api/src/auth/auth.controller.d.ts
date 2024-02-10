@@ -11,11 +11,6 @@ export declare class AuthController {
     private readonly jwtService;
     private readonly event;
     constructor(prisma: PrismaClientService, jwtService: JwtService, event: EventGateway);
-    getSession(authContext: AuthContext): Promise<{
-        user: {
-            id: string;
-        };
-    }>;
     loginUser(userLogin: UserLoginDTO): Promise<UserLoginResponseDTO>;
     registerUser(userRegister: UserRegisterDTO): Promise<UserRegisterResponseDTO>;
     refreshToken(userAuthToken: UserAuthTokenDTO): Promise<UserAuthResponseDTO>;

@@ -4,9 +4,9 @@ export declare class UserLoginDTO {
     password: string;
 }
 export declare class UserLoginResponseDTO {
-    token: string;
+    access_token: string;
     refresh_token: string;
-    conversations: ConversationDTO[];
+    conversation: ConversationDTO[];
     fullname: string;
     userId: string;
 }

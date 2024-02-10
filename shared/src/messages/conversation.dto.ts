@@ -1,4 +1,3 @@
-import { UserWithOutPassword } from '../users/user.dto';
 import { MessageDTO } from './message.dto';
 
 export class ConversationDTO {

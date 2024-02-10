@@ -1,3 +1,4 @@
+import { ConversationDTO } from '../../messages/conversation.dto';
 export declare class UserRegisterDTO {
     fullname: string;
     password: string;
@@ -5,7 +6,9 @@ export declare class UserRegisterDTO {
     email: string;
 }
 export declare class UserRegisterResponseDTO {
-    token: string;
+    access_token: string;
     refresh_token: string;
     userId: string;
+    conversation: ConversationDTO[];
+    fullname: string;
 }

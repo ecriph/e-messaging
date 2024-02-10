@@ -4,7 +4,7 @@ exports.createConversationDTO = void 0;
 const openapi = require("@nestjs/swagger");
 class createConversationDTO {
     static _OPENAPI_METADATA_FACTORY() {
-        return { recipientId: { required: true, type: () => String } };
+        return { recipientId: { required: true, type: () => String }, userName: { required: true, type: () => String }, recipientName: { required: true, type: () => String } };
     }
 }
 exports.createConversationDTO = createConversationDTO;

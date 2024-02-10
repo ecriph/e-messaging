@@ -7,9 +7,9 @@ export class UserLoginDTO {
 }
 
 export class UserLoginResponseDTO {
-  token!: string;
+  access_token!: string;
   refresh_token!: string;
-  conversations!: ConversationDTO[];
+  conversation!: ConversationDTO[];
   fullname!: string;
   userId!: string;
 }

@@ -24,23 +24,17 @@ const common_1 = require("@nestjs/common");
 const auth_context_1 = require("../auth/auth-context");
 const auth_context_decorator_1 = require("../auth/auth-context.decorator");
 const event_gateway_1 = require("../event/event.gateway");
-const push_notification_service_1 = require("../internals/api/push-notification/push-notification.service");
 const prisma_client_service_1 = require("../internals/database/prisma-client.service");
 const validation_pipe_1 = require("../internals/validation/validation.pipe");
-function lastMessage(conversation) {
+const lastMessage = (conversation) => {
     return Object.assign(Object.assign({}, conversation), { messages: conversation.messages.length > 0
             ? conversation.messages[conversation.messages.length - 1]
             : [] });
-}
-function getUserNameRow(names, userId) {
-    const filteredName = names.find((user) => user.id === userId);
-    return filteredName ? filteredName.fullname : '';
-}
+};
 let MessageController = class MessageController {
-    constructor(prisma, event, sendNotification) {
+    constructor(prisma, event) {
         this.prisma = prisma;
         this.event = event;
-        this.sendNotification = sendNotification;
     }
     async getUsers(authContext) {
         const users = await this.prisma.getClient().user.findMany({
@@ -71,81 +65,27 @@ let MessageController = class MessageController {
         return getMessages;
     }
     async createMessage(authContext, sendMessage) {
-        return await this.prisma.getClient().$transaction(async (tx) => {
-            const message = await tx.message.create({
-                data: {
-                    content: sendMessage.content,
-                    senderId: authContext.user.id,
-                    conversationId: sendMessage.conversationId,
-                },
-            });
-            const conversation = await tx.conversation.findFirst({
-                where: { id: sendMessage.conversationId },
-            });
-            if (!conversation)
-                return;
-            const recipient = conversation.userId === authContext.user.id
-                ? {
-                    id: conversation.recipientId,
-                    username: conversation.recipientName,
-                }
-                : { id: conversation.userId, username: conversation.userName };
-            const getToken = await tx.pushToken.findUnique({
-                where: { userId: recipient.id },
-            });
-            let pushToken;
-            if (!getToken) {
-                pushToken = '';
-            }
-            else {
-                pushToken = getToken.token;
-            }
-            this.event.sendMessage(message);
-            await this.sendNotification.sendPushNotification(pushToken, sendMessage.content, recipient.username);
-            return message;
+        const message = await this.prisma.getClient().message.create({
+            data: {
+                content: sendMessage.content,
+                senderId: authContext.user.id,
+                conversationId: sendMessage.conversationId,
+            },
         });
+        this.event.sendMessage(message);
+        return message;
     }
     async createConversation(authContext, createConversation) {
-        return this.prisma.getClient().$transaction(async (tx) => {
-            const checkDuplicate = await tx.conversation.findFirst({
-                where: {
-                    OR: [
-                        {
-                            userId: authContext.user.id,
-                            recipientId: createConversation.recipientId,
-                        },
-                        {
-                            userId: createConversation.recipientId,
-                            recipientId: authContext.user.id,
-                        },
-                    ],
-                },
-                include: { messages: true },
-            });
-            if (checkDuplicate) {
-                return checkDuplicate;
-            }
-            const getNames = await tx.user.findMany({
-                where: {
-                    OR: [
-                        { id: authContext.user.id },
-                        { id: createConversation.recipientId },
-                    ],
-                },
-            });
-            const userName = getUserNameRow(getNames, authContext.user.id);
-            const recipientName = getUserNameRow(getNames, createConversation.recipientId);
-            const conversation = await tx.conversation.create({
-                data: {
-                    userId: authContext.user.id,
-                    recipientId: createConversation.recipientId,
-                    recipientName: recipientName,
-                    userName: userName,
-                },
-                include: { messages: true },
-            });
-            return conversation;
+        const conversation = await this.prisma.getClient().conversation.create({
+            data: {
+                userId: authContext.user.id,
+                recipientId: createConversation.recipientId,
+                userName: createConversation.userName,
+                recipientName: createConversation.recipientName,
+            },
+            include: { messages: true },
         });
+        return conversation;
     }
 };
 exports.MessageController = MessageController;
@@ -198,7 +138,6 @@ __decorate([
 exports.MessageController = MessageController = __decorate([
     (0, common_1.Controller)({ path: 'message', version: '1' }),
     __metadata("design:paramtypes", [prisma_client_service_1.PrismaClientService,
-        event_gateway_1.EventGateway,
-        push_notification_service_1.PushNotificationService])
+        event_gateway_1.EventGateway])
 ], MessageController);
 //# sourceMappingURL=message.controller.js.map

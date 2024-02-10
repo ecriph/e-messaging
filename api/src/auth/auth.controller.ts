@@ -5,7 +5,6 @@ import {
 import { UserLoginSchema } from '@/shared/users/user-login/user-login.schemas';
 import {
   BadRequestException,
-  Get,
   Body,
   Controller,
   Post,
@@ -16,7 +15,6 @@ import { PrismaClientService } from 'src/internals/database/prisma-client.servic
 import { ResourceNotFoundException } from 'src/internals/server/resource-not-found.exception';
 import { ValidationPipe } from 'src/internals/validation/validation.pipe';
 import * as bcrypt from 'bcryptjs';
-import { v1 } from 'uuid';
 import { JwtService } from 'src/internals/api/jwt.service';
 import { UserRegisterSchema } from '@/shared/users/user-register/user-register.schemas';
 import {
@@ -42,13 +40,6 @@ export class AuthController {
     private readonly jwtService: JwtService,
     private readonly event: EventGateway,
   ) {}
-
-  @Get('/session')
-  async getSession(@WithAuthContext() authContext: AuthContext) {
-    return {
-      user: { id: authContext.user.id },
-    };
-  }
 
   @Post('/login')
   @PublicRoute()
@@ -78,7 +69,7 @@ export class AuthController {
         const refreshpayload = {
           id: userData.id,
           role: userData.role,
-          duration: '7d',
+          duration: '10d',
         };
 
         const accessToken = await this.jwtService.signToken(accesspayload);
@@ -89,13 +80,11 @@ export class AuthController {
             where: { id: userData.id },
             data: { refresh_token: refreshToken.token },
           });
-          // const status = { userId: userData.id, status: 'Online' };
-          // this.event.handleConnection(status);
 
           return {
-            token: accessToken.token,
+            access_token: accessToken.token,
             refresh_token: refreshToken.token,
-            conversations: userData.conversations,
+            conversation: userData.conversations,
             fullname: userData.fullname,
             userId: userData.id,
           };
@@ -126,15 +115,17 @@ export class AuthController {
       if (!hashedPassword) {
         throw new BadRequestException('Password hashing failed');
       }
-      const refreshToken = v1();
 
       const registerUser = await tx.user.create({
         data: {
           fullname: userRegister.fullname,
           email: userRegister.email,
           password: hashedPassword,
-          refresh_token: refreshToken,
+          refresh_token: '',
           role: UserRole.USER,
+        },
+        include: {
+          conversations: true,
         },
       });
 
@@ -144,12 +135,26 @@ export class AuthController {
         duration: '300s',
       };
       const getToken = await this.jwtService.signToken(payload);
+      const refreshToken = await this.jwtService.signToken({
+        id: registerUser.id,
+        role: registerUser.role,
+        duration: '10d',
+      });
+
+      await tx.user.update({
+        data: {
+          refresh_token: refreshToken.token,
+        },
+        where: { id: registerUser.id },
+      });
 
       if (getToken.success) {
         return {
           userId: registerUser.id,
-          token: getToken.token,
-          refresh_token: refreshToken,
+          access_token: getToken.token,
+          refresh_token: refreshToken.token,
+          conversation: registerUser.conversations,
+          fullname: registerUser.fullname,
         };
       } else {
         throw new BadRequestException('Token-signin-error');
@@ -175,16 +180,9 @@ export class AuthController {
         duration: '300s',
       };
       const newAccessToken = await this.jwtService.signToken(accesspayload);
-      // const newRefreshToken = await this.jwtService.signToken(refreshpayload);
-
-      // await tx.user.update({
-      //   where: { id: checkUser.id },
-      //   data: { refresh_token: newRefreshToken.token },
-      // });
 
       return {
-        accessToken: newAccessToken.token,
-        refreshToken: userAuthToken.refreshToken,
+        access_token: newAccessToken.token,
       };
     });
   }

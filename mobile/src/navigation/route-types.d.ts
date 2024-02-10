@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Dashboard: undefined;
   ChatScreen: { conversationId: string; username: string };
   ProfileScreen: undefined;
+  ForgotScreen: undefined;
 };
 
 /**

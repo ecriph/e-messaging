@@ -45,7 +45,6 @@ const prisma_client_service_1 = require("../internals/database/prisma-client.ser
 const resource_not_found_exception_1 = require("../internals/server/resource-not-found.exception");
 const validation_pipe_1 = require("../internals/validation/validation.pipe");
 const bcrypt = __importStar(require("bcryptjs"));
-const uuid_1 = require("uuid");
 const jwt_service_1 = require("../internals/api/jwt.service");
 const user_register_schemas_1 = require("../../../shared/src/users/user-register/user-register.schemas");
 const user_register_dto_1 = require("../../../shared/src/users/user-register/user-register.dto");
@@ -62,11 +61,6 @@ let AuthController = class AuthController {
         this.prisma = prisma;
         this.jwtService = jwtService;
         this.event = event;
-    }
-    async getSession(authContext) {
-        return {
-            user: { id: authContext.user.id },
-        };
     }
     async loginUser(userLogin) {
         return this.prisma.getClient().$transaction(async (tx) => {
@@ -87,7 +81,7 @@ let AuthController = class AuthController {
                 const refreshpayload = {
                     id: userData.id,
                     role: userData.role,
-                    duration: '7d',
+                    duration: '10d',
                 };
                 const accessToken = await this.jwtService.signToken(accesspayload);
                 const refreshToken = await this.jwtService.signToken(refreshpayload);
@@ -97,9 +91,9 @@ let AuthController = class AuthController {
                         data: { refresh_token: refreshToken.token },
                     });
                     return {
-                        token: accessToken.token,
+                        access_token: accessToken.token,
                         refresh_token: refreshToken.token,
-                        conversations: userData.conversations,
+                        conversation: userData.conversations,
                         fullname: userData.fullname,
                         userId: userData.id,
                     };
@@ -125,14 +119,16 @@ let AuthController = class AuthController {
             if (!hashedPassword) {
                 throw new common_1.BadRequestException('Password hashing failed');
             }
-            const refreshToken = (0, uuid_1.v1)();
             const registerUser = await tx.user.create({
                 data: {
                     fullname: userRegister.fullname,
                     email: userRegister.email,
                     password: hashedPassword,
-                    refresh_token: refreshToken,
+                    refresh_token: '',
                     role: client_1.UserRole.USER,
+                },
+                include: {
+                    conversations: true,
                 },
             });
             const payload = {
@@ -141,11 +137,24 @@ let AuthController = class AuthController {
                 duration: '300s',
             };
             const getToken = await this.jwtService.signToken(payload);
+            const refreshToken = await this.jwtService.signToken({
+                id: registerUser.id,
+                role: registerUser.role,
+                duration: '10d',
+            });
+            await tx.user.update({
+                data: {
+                    refresh_token: refreshToken.token,
+                },
+                where: { id: registerUser.id },
+            });
             if (getToken.success) {
                 return {
                     userId: registerUser.id,
-                    token: getToken.token,
-                    refresh_token: refreshToken,
+                    access_token: getToken.token,
+                    refresh_token: refreshToken.token,
+                    conversation: registerUser.conversations,
+                    fullname: registerUser.fullname,
                 };
             }
             else {
@@ -167,8 +176,7 @@ let AuthController = class AuthController {
             };
             const newAccessToken = await this.jwtService.signToken(accesspayload);
             return {
-                accessToken: newAccessToken.token,
-                refreshToken: userAuthToken.refreshToken,
+                access_token: newAccessToken.token,
             };
         });
     }
@@ -193,14 +201,6 @@ let AuthController = class AuthController {
     }
 };
 exports.AuthController = AuthController;
-__decorate([
-    (0, common_1.Get)('/session'),
-    openapi.ApiResponse({ status: 200 }),
-    __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_context_1.AuthContext]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "getSession", null);
 __decorate([
     (0, common_1.Post)('/login'),
     (0, public_route_decorator_1.PublicRoute)(),
