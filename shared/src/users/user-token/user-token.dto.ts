@@ -8,8 +8,7 @@ export class UserAuthTokenDTO {
 }
 
 export class UserAuthResponseDTO {
-  refreshToken!: string;
-  accessToken!: string;
+  access_token!: string;
 }
 
 export class UserTokenStatus {

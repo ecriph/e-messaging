@@ -21,6 +21,8 @@ import * as Yup from 'yup';
 import socket from '../../internals/service/socket/socket-services';
 import { api } from '../../internals/api/use-main-axios';
 import { ACCESSTOKEN, REFRESHTOKEN } from '../../internals/data/const';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 
 type Props = {};
 interface LoginProps {
@@ -33,6 +35,7 @@ const LoginScreen = (props: Props) => {
   const initialValues: LoginProps = { email: '', password: '' };
   const dispatch = useAppDispatch();
   const chat = useAppSelector((state) => state.chat);
+  const navigation = useNavigation();
 
   const LoginValidation = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('*required'),
@@ -49,8 +52,8 @@ const LoginScreen = (props: Props) => {
         await api
           .post('auth/login', payload)
           .then((resp) => {
-            const { token, refresh_token, fullname, userId } = resp.data;
-            AsyncStorage.setItem(ACCESSTOKEN, token);
+            const { access_token, refresh_token, fullname, userId } = resp.data;
+            AsyncStorage.setItem(ACCESSTOKEN, access_token);
             AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
             console.log(refresh_token);
             setLoading(false);
@@ -76,7 +79,7 @@ const LoginScreen = (props: Props) => {
       }) => (
         <MainContainer
           BottomComponent={
-            <FlexColumnContainer mt="20px">
+            <FlexColumnContainer mt="40px">
               {isLoading ? (
                 <PrimaryButton
                   onPress={() => {}}
@@ -93,7 +96,7 @@ const LoginScreen = (props: Props) => {
             </FlexColumnContainer>
           }
         >
-          <FlexColumnContainer justifyContent="flex-start" mt="30px">
+          <FlexColumnContainer justifyContent="flex-start" mt="50px">
             <FlexRowContainer justifyContent="flex-start" mb="15px">
               <BackArrow />
             </FlexRowContainer>
@@ -117,6 +120,31 @@ const LoginScreen = (props: Props) => {
                 error={errors.password}
               />
             </FlexColumnContainer>
+
+            <FlexRowContainer justifyContent="space-between" mt="20px">
+              <TouchableOpacity
+                onPress={() => navigation.navigate('RegisterScreen')}
+              >
+                <HeaderText2
+                  color={Colors.green}
+                  font={Font.SemiBold}
+                  fontSize={14}
+                >
+                  Create Account
+                </HeaderText2>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ForgotScreen')}
+              >
+                <HeaderText2
+                  color={Colors.grey}
+                  font={Font.Medium}
+                  fontSize={14}
+                >
+                  Forgot Password
+                </HeaderText2>
+              </TouchableOpacity>
+            </FlexRowContainer>
           </FlexColumnContainer>
         </MainContainer>
       )}

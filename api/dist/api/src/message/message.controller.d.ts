@@ -3,13 +3,11 @@ import { CreateMessageDTO } from '@/shared/messages/create-message/create-messag
 import { ListMessageDTO } from '@/shared/messages/list-message/list-message.dto';
 import { AuthContext } from 'src/auth/auth-context';
 import { EventGateway } from 'src/event/event.gateway';
-import { PushNotificationService } from 'src/internals/api/push-notification/push-notification.service';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
 export declare class MessageController {
     private readonly prisma;
     private readonly event;
-    private readonly sendNotification;
-    constructor(prisma: PrismaClientService, event: EventGateway, sendNotification: PushNotificationService);
+    constructor(prisma: PrismaClientService, event: EventGateway);
     getUsers(authContext: AuthContext): Promise<({
         conversations: {
             id: string;
@@ -68,7 +66,7 @@ export declare class MessageController {
         conversationId: string;
         createdAt: Date;
         updatedAt: Date;
-    } | undefined>;
+    }>;
     createConversation(authContext: AuthContext, createConversation: createConversationDTO): Promise<{
         messages: {
             id: string;

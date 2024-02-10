@@ -9,6 +9,7 @@ import ChatScreen from '../screens/protected/chat/chat-screen';
 import ProfileScreen from '../screens/protected/profile/profile-screen';
 import { useSelector } from 'react-redux';
 import { UserRootState } from '../redux/user/reducer';
+import { ForgotPassword } from '../screens/auth/forgot-password/forgot';
 
 const AuthStack = createNativeStackNavigator<RootStackParamList>();
 const Navigation = () => {
@@ -30,6 +31,7 @@ const Navigation = () => {
           <AuthStack.Screen name="HomeScreen" component={HomeScreen} />
           <AuthStack.Screen name="RegisterScreen" component={RegisterScreen} />
           <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
+          <AuthStack.Screen name="ForgotScreen" component={ForgotPassword} />
         </AuthStack.Group>
       )}
     </AuthStack.Navigator>

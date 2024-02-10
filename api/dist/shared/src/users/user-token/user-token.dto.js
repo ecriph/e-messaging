@@ -16,7 +16,7 @@ class UserAuthTokenDTO {
 exports.UserAuthTokenDTO = UserAuthTokenDTO;
 class UserAuthResponseDTO {
     static _OPENAPI_METADATA_FACTORY() {
-        return { refreshToken: { required: true, type: () => String }, accessToken: { required: true, type: () => String } };
+        return { access_token: { required: true, type: () => String } };
     }
 }
 exports.UserAuthResponseDTO = UserAuthResponseDTO;
