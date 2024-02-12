@@ -7,12 +7,11 @@ import {
 } from '../../../internals/ui-kit/container';
 import { HeaderText1, SmallText } from '../../../internals/ui-kit/text';
 import { PrimaryInput } from '../../../internals/ui-kit/input';
-import { ChatButton } from '../../../internals/ui-kit/button';
-import { Font, FontSize } from '../../../internals/ui-kit/theme';
+import { AttachButton, ChatButton } from '../../../internals/ui-kit/button';
+import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
 import BackArrow from '../../../internals/ui-kit/back-arrow';
 import { Formik } from 'formik';
 import { UserRootState } from '../../../redux/user/reducer';
-import { ChatContainer } from './chat-component';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
@@ -24,6 +23,10 @@ import useWebSocket from '../../../internals/service/socket/use-socket';
 import { UserStatus } from '@/shared/users/user-login/user-status.dto';
 import { sendPushNotification } from '../../../internals/service/push-notification';
 import { api } from '../../../internals/api/use-main-axios';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { ChatAttachment } from './chat-component/chat-attachment';
+import { ChatContainer } from './chat-component/chat-container';
+import useModal from '../../../internals/utils/use-modal-sheet';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -42,12 +45,26 @@ const ChatScreen = ({ route }: Props) => {
   const dispatch = useAppDispatch();
   const scrollViewRef = useRef<ScrollView>(null);
   const [typing, setTyping] = useState<string>();
-  const [count, setUnreadCount] = useState<string>();
+  const [message, setMessage] = useState<string>('');
+  const snapPoints = React.useMemo(() => ['30%', '40%', '75%', '95%'], []);
+
+  const {
+    handleClick,
+    handleCloseModal,
+    handlePresentModalOpen,
+    sheetRef,
+    openIndex,
+    isOpen,
+  } = useModal();
 
   const handleScrollToEnd = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollToEnd({ animated: true });
     }
+  };
+
+  const handleMessage = (value: string) => {
+    setMessage(value);
   };
 
   const handleStatus = () => {
@@ -119,6 +136,8 @@ const ChatScreen = ({ route }: Props) => {
     >
       {({ errors, handleChange, handleSubmit, values }) => (
         <MainContainer
+          bgColor={isOpen ? '#00000090' : Colors.white}
+          useOverlay={isOpen ? true : false}
           BottomComponent={
             <FlexRowContainer
               padTop="20px"
@@ -128,15 +147,34 @@ const ChatScreen = ({ route }: Props) => {
               <PrimaryInput
                 style={{ width: '80%' }}
                 text=""
-                placeholder="Enter text here"
-                value={values.message}
-                onChangeText={handleChange('message')}
+                placeholder="Type message here"
+                value={message}
+                onChangeText={(value) => handleMessage(value)}
                 fontSize={FontSize.header1}
                 error={errors.message}
                 onFocus={handleScrollToEnd}
                 onKeyPress={handleStatus}
               />
-              <ChatButton width="15%" mb="0px" onPress={handleSubmit} />
+              {message !== '' ? (
+                <ChatButton width="15%" mb="0px" onPress={handleSubmit} />
+              ) : (
+                <AttachButton
+                  width="15%"
+                  mb="0px"
+                  onPress={() => handlePresentModalOpen(0)}
+                />
+              )}
+              <BottomSheetModal
+                ref={sheetRef}
+                onChange={handleClick}
+                index={openIndex}
+                snapPoints={snapPoints}
+              >
+                <ChatAttachment
+                  onClick={handleCloseModal}
+                  onSaveUrl={(url) => console.log(url)}
+                />
+              </BottomSheetModal>
             </FlexRowContainer>
           }
         >
@@ -162,9 +200,13 @@ const ChatScreen = ({ route }: Props) => {
                 ref={scrollViewRef}
               >
                 {chatMessage.length == 0 ? (
-                  <FlexColumnContainer align="center">
-                    <HeaderText1 font={Font.Light} fontSize={FontSize.header2}>
-                      No messages yet with user
+                  <FlexColumnContainer
+                    mt="250px"
+                    align="center"
+                    justifyContent="center"
+                  >
+                    <HeaderText1 font={Font.Light} fontSize={12}>
+                      Send your first message to {username}
                     </HeaderText1>
                   </FlexColumnContainer>
                 ) : (

@@ -98,7 +98,7 @@ export const RegisterSecurity = () => {
           }
         >
           <FlexColumnContainer mt="45px">
-            <FlexRowContainer justifyContent="flex-start" mb="0px">
+            <FlexRowContainer justifyContent="flex-start" mb="20px">
               <BackArrow />
             </FlexRowContainer>
             <PrimaryInput

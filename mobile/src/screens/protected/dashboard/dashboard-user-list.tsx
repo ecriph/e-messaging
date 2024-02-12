@@ -13,6 +13,7 @@ import { UserDTO } from '@/shared/users/user.dto';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { api } from '../../../internals/api/use-main-axios';
+import { useAppSelector } from '../../../redux/hooks';
 
 interface ChatProps {
   onPress: () => void;
@@ -25,6 +26,7 @@ interface ChatProps {
 export const UsersList = () => {
   const [_userList, setList] = useState<UserDTO[]>();
   const navigation = useNavigation();
+  const user = useAppSelector((state) => state.user);
 
   const getUserList = useCallback(async () => {
     await api
@@ -56,7 +58,11 @@ export const UsersList = () => {
               <PressableContainer
                 key={index}
                 onPress={async () => {
-                  const payload = { recipientId: list.id };
+                  const payload = {
+                    recipientId: list.id,
+                    userName: user.fullname,
+                    recipientName: list.fullname,
+                  };
                   await api
                     .post('/v1/message/create/conversation', payload)
                     .then((resp) => {

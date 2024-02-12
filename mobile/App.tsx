@@ -10,6 +10,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import useCatchResource from './src/internals/utils/use-catch-resource';
 import Loading from './src/internals/ui-kit/loading';
 import { StatusBar } from 'expo-status-bar';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 export default function App() {
   const isReady = useCatchResource(store);
@@ -20,10 +21,12 @@ export default function App() {
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
-          <StatusBar />
           <GestureHandlerRootView style={{ flex: 1 }}>
             <NavigationContainer>
-              <Navigation />
+              <BottomSheetModalProvider>
+                <StatusBar />
+                <Navigation />
+              </BottomSheetModalProvider>
             </NavigationContainer>
           </GestureHandlerRootView>
         </SafeAreaProvider>
