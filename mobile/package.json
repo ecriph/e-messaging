@@ -10,6 +10,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@expo/config-plugins": "^7.8.4",
+    "@gorhom/bottom-sheet": "^4.6.0",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.16",
@@ -21,6 +23,7 @@
     "expo-constants": "~14.4.2",
     "expo-dev-client": "~2.4.12",
     "expo-device": "~5.4.0",
+    "expo-document-picker": "^11.10.1",
     "expo-jwt": "^1.6.5",
     "expo-notifications": "~0.20.1",
     "expo-splash-screen": "~0.20.5",

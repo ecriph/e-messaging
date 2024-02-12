@@ -48,6 +48,13 @@
             "deploymentTarget": "13.0"
           }
         }
+        
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
       ]
     ]
   }

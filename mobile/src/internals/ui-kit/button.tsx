@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import { Colors, Font } from './theme';
 import { HeaderText2, NormalText } from './text';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
 interface TouchableProps {
   height?: string;
@@ -107,7 +107,28 @@ export const ChatButton: React.FC<OnPressButtonProps> = ({
       width={width}
       mb={mb}
     >
-      <FontAwesome name="send" size={25} color={Colors.white} />
+      <FontAwesome name="send" size={20} color={Colors.white} />
+    </Primary>
+  );
+};
+export const AttachButton: React.FC<OnPressButtonProps> = ({
+  width,
+  onPress,
+  enabled = true,
+  mb,
+}) => {
+  const onBtnPress = () => {
+    onPress();
+  };
+  return (
+    <Primary
+      onPress={onBtnPress}
+      disabled={!enabled}
+      enabled={enabled}
+      width={width}
+      mb={mb}
+    >
+      <Ionicons name="attach-sharp" size={24} color="white" />
     </Primary>
   );
 };
