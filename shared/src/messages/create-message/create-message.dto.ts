@@ -1,4 +1,5 @@
 export class CreateMessageDTO {
+  userId!: string;
   content!: string;
   conversationId!: string;
 }

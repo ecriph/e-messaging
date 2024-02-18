@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   Circle,
   FlexColumnContainer,
@@ -18,12 +24,12 @@ import { ConversationResponseListDTO } from '@/shared/messages/conversation.dto'
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { api } from '../../../internals/api/use-main-axios';
+import socket from '../../../internals/service/socket/socket-services';
 
 export const ChatList = () => {
   const [_convo, setConvo] = useState<ConversationResponseListDTO[]>();
   const navigation = useNavigation();
   const user = useAppSelector((state) => state.user);
-
   const getConvo = useCallback(async () => {
     await api
       .get('/v1/message/list/conversation')
@@ -35,9 +41,16 @@ export const ChatList = () => {
       });
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     getConvo();
   }, []);
+
+  useEffect(() => {
+    socket.on('conversationList', (data) => {
+      setConvo(data);
+    });
+  }, [socket]);
+
   return (
     <FlexColumnContainer>
       <PressableContainer>

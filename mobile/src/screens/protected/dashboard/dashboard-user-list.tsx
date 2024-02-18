@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   Circle,
   FlexColumnContainer,
@@ -14,6 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { api } from '../../../internals/api/use-main-axios';
 import { useAppSelector } from '../../../redux/hooks';
+import socket from '../../../internals/service/socket/socket-services';
 
 interface ChatProps {
   onPress: () => void;
@@ -27,7 +33,6 @@ export const UsersList = () => {
   const [_userList, setList] = useState<UserDTO[]>();
   const navigation = useNavigation();
   const user = useAppSelector((state) => state.user);
-
   const getUserList = useCallback(async () => {
     await api
       .get('/v1/message/list/users')
@@ -39,7 +44,7 @@ export const UsersList = () => {
       });
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     getUserList();
   }, []);
 
@@ -62,18 +67,20 @@ export const UsersList = () => {
                     recipientId: list.id,
                     userName: user.fullname,
                     recipientName: list.fullname,
+                    userId: user.userId,
                   };
-                  await api
-                    .post('/v1/message/create/conversation', payload)
-                    .then((resp) => {
-                      navigation.navigate('ChatScreen', {
-                        conversationId: resp.data.id,
-                        username: resp.data.userName,
-                      });
-                    })
-                    .catch((err) => {
-                      Alert.alert(err);
-                    });
+                  socket.emit('createConversation', payload);
+                  // await api
+                  //   .post('/v1/message/create/conversation', payload)
+                  //   .then((resp) => {
+                  //     navigation.navigate('ChatScreen', {
+                  //       conversationId: resp.data.id,
+                  //       username: resp.data.userName,
+                  //     });
+                  //   })
+                  //   .catch((err) => {
+                  //     Alert.alert(err);
+                  //   });
                 }}
               >
                 <FlexRowContainer
