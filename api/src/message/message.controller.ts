@@ -86,7 +86,7 @@ export class MessageController {
       },
     });
 
-    this.event.sendMessage(message);
+    // this.event.sendMessage(message);
 
     return message;
   }

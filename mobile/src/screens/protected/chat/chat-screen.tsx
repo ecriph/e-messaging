@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   FlexColumnContainer,
   FlexRowContainer,
@@ -16,10 +22,8 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
 import { RouteProp } from '@react-navigation/native';
-import socket from '../../../internals/service/socket/socket-services';
 import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 import { ScrollView } from 'react-native-gesture-handler';
-import useWebSocket from '../../../internals/service/socket/use-socket';
 import { UserStatus } from '@/shared/users/user-login/user-status.dto';
 import { sendPushNotification } from '../../../internals/service/push-notification';
 import { api } from '../../../internals/api/use-main-axios';
@@ -27,6 +31,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ChatAttachment } from './chat-component/chat-attachment';
 import { ChatContainer } from './chat-component/chat-container';
 import useModal from '../../../internals/utils/use-modal-sheet';
+import socket from '../../../internals/service/socket/socket-services';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -47,7 +52,6 @@ const ChatScreen = ({ route }: Props) => {
   const [typing, setTyping] = useState<string>();
   const [message, setMessage] = useState<string>('');
   const snapPoints = React.useMemo(() => ['30%', '40%', '75%', '95%'], []);
-
   const {
     handleClick,
     handleCloseModal,
@@ -67,46 +71,31 @@ const ChatScreen = ({ route }: Props) => {
     setMessage(value);
   };
 
-  const handleStatus = () => {
-    socket.emit('typingStatus', {
-      userId: user.userId,
-      username: user.fullname,
-      typing: true,
-    });
-  };
   // const getMessages = useCallback(async () => {
-  //   try {
-  //     const messages = await getRequest(
+
+  //   await api.get(
   //       '/v1/message/list/message/' + conversationId
-  //     );
+  //     ).then(resp => {
+  //       setChatMessage(resp.data)
 
-  //     if (messages.failure) {
-  //       Alert.alert(messages.failure);
-  //     } else {
-  //       setChatMessage(messages.body); // Assuming messages.body is an array
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching messages:', error);
-  //   }
-  // }, [getRequest, conversationId]);
+  //     }).catch(err => {
+  //       Alert.alert(err)
+  //     })
 
-  // useEffect(() => {
-  //   getMessages();
-  // }, [getMessages]);
+  // }, []);
 
-  useWebSocket(
-    (myMessage: CreateChatMessageDTO) => {
-      setChatMessage((prevMessages) => [...prevMessages, myMessage]);
-      handleScrollToEnd();
-    },
-    (typing: UserStatus) => {
-      if (typing.status === true) {
-        setTyping(`${typing.username} is typing...`);
-      } else {
-        setTyping('');
-      }
-    }
-  );
+  useLayoutEffect(() => {
+    socket.emit('findConversation', conversationId);
+    socket.on('foundConverstaion', (messages) => {
+      setChatMessage(messages);
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on('foundConverstaion', (messages) => {
+      setChatMessage(messages);
+    });
+  }, [socket]);
 
   return (
     <Formik
@@ -119,17 +108,20 @@ const ChatScreen = ({ route }: Props) => {
         };
         const payload = {
           content: values.message,
+          senderId: user.userId,
           conversationId: conversationId,
         };
 
-        const messages = await api
-          .post('/v1/message/create/message', payload)
-          .then((resp) => {})
-          .catch((err) => {
-            Alert.alert(err);
-          });
+        socket.emit('newMessage', payload);
 
-        setChatMessage([...chatMessage, newMessage]);
+        // const messages = await api
+        //   .post('/v1/message/create/message', payload)
+        //   .then((resp) => {})
+        //   .catch((err) => {
+        //     Alert.alert(err);
+        //   });
+
+        // setChatMessage([...chatMessage, newMessage]);
         handleScrollToEnd();
         resetForm();
       }}
@@ -153,7 +145,7 @@ const ChatScreen = ({ route }: Props) => {
                 fontSize={FontSize.header1}
                 error={errors.message}
                 onFocus={handleScrollToEnd}
-                onKeyPress={handleStatus}
+                // onKeyPress={handleStatus}
               />
               {message !== '' ? (
                 <ChatButton width="15%" mb="0px" onPress={handleSubmit} />
