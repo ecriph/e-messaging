@@ -24,7 +24,7 @@
       },
       "package": "com.princechris_c.eChat",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 13
+      "versionCode": 14
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -48,7 +48,6 @@
             "deploymentTarget": "13.0"
           }
         }
-        
       ],
       [
         "expo-document-picker",

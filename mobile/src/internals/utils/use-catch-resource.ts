@@ -7,7 +7,10 @@ import { confirmToken } from '../../redux/user/action';
 import { registerForPushNotificationsAsync } from '../service/push-notification';
 import * as Notifications from 'expo-notifications';
 import { Notification, Subscription } from 'expo-notifications';
-import { REGISTER_TOKEN } from '../../redux/user/reducer';
+import { LOGIN_SUCCESS, REGISTER_TOKEN } from '../../redux/user/reducer';
+import { EnvironmentVariables } from '../runtime/environment-vairables';
+import axios from 'axios';
+import { REFRESHTOKEN, ACCESSTOKEN } from '../data/const';
 
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => ({
@@ -52,12 +55,25 @@ function useCatchResource(store: any) {
     }
 
     async function Auth() {
-      await AsyncStorage.getItem('token')
+      await AsyncStorage.getItem(REFRESHTOKEN)
         .then(async (token) => {
           if (token === null) {
             return;
+          } else {
+            const resp = await axios.post(
+              `${EnvironmentVariables.MAIN_API_URL}/auth/refresh-token`,
+              { refreshToken: token }
+            );
+            const { access_token, refresh_token, fullname, userId } = resp.data;
+            // if (status === 'success') {
+            AsyncStorage.setItem(ACCESSTOKEN, access_token);
+            await store.dispatch(
+              LOGIN_SUCCESS({ userId: userId, fullname: fullname })
+            );
+            // } else {
+            //   return;
+            // }
           }
-          await getUserCredentials(token);
         })
         .catch((error) => console.log('Error checking authentication:', error));
     }
