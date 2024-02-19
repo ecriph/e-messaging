@@ -44,6 +44,7 @@ model Conversation {
 model Message {
   id             String       @id @default(uuid())
   content        String
+  category       String
   senderId       String
   sender         User         @relation(fields: [senderId], references: [id])
   conversationId String

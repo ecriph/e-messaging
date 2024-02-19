@@ -10,14 +10,13 @@ exports.MessageModule = void 0;
 const common_1 = require("@nestjs/common");
 const message_controller_1 = require("./message.controller");
 const prisma_client_module_1 = require("../internals/database/prisma-client.module");
-const event_module_1 = require("../event/event.module");
 let MessageModule = class MessageModule {
 };
 exports.MessageModule = MessageModule;
 exports.MessageModule = MessageModule = __decorate([
     (0, common_1.Module)({
         controllers: [message_controller_1.MessageController],
-        imports: [prisma_client_module_1.PrismaClientModule, event_module_1.EventModule],
+        imports: [prisma_client_module_1.PrismaClientModule],
     })
 ], MessageModule);
 //# sourceMappingURL=message.module.js.map

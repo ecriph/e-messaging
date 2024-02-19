@@ -4,8 +4,8 @@ import {
   FlexRowContainer,
 } from '../../../../internals/ui-kit/container';
 
-import { SenderMesssage } from './chat-send';
-import { ReceiverMessage } from './chat-recieve';
+import { SenderMesssage, SenderPhoto } from './chat-send';
+import { ReceiverMessage, ReceiverPhoto } from './chat-recieve';
 
 export const ChatContainer = ({
   chatMessage,
@@ -23,19 +23,37 @@ export const ChatContainer = ({
           <FlexColumnContainer key={index}>
             {isOwnMessage ? (
               <FlexRowContainer justifyContent="flex-end">
-                <SenderMesssage
-                  text={message.content}
-                  name="You"
-                  date={message.createdAt}
-                />
+                {message.category === 'Photo' && (
+                  <SenderPhoto
+                    url={message.content}
+                    name="You"
+                    date={message.createdAt}
+                  />
+                )}
+                {message.category === 'Text' && (
+                  <SenderMesssage
+                    text={message.content}
+                    name="You"
+                    date={message.createdAt}
+                  />
+                )}
               </FlexRowContainer>
             ) : (
               <FlexRowContainer justifyContent="flex-start">
-                <ReceiverMessage
-                  text={message.content}
-                  name={message.senderId}
-                  date={message.createdAt}
-                />
+                {message.category === 'Photo' && (
+                  <ReceiverPhoto
+                    url={message.content}
+                    name="You"
+                    date={message.createdAt}
+                  />
+                )}
+                {message.category === 'Text' && (
+                  <ReceiverMessage
+                    text={message.content}
+                    name={message.senderId}
+                    date={message.createdAt}
+                  />
+                )}
               </FlexRowContainer>
             )}
           </FlexColumnContainer>

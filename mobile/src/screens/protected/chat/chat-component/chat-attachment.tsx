@@ -56,8 +56,8 @@ export const ChatAttachment = ({ onClick, onSaveUrl }: Props) => {
           <AntDesign name="close" size={18} color="black" onPress={onClick} />
         </FlexRowContainer>
         <FlexRowContainer justifyContent="space-between" mt="60px">
-          {DATA.map((data) => (
-            <TouchableOpacity onPress={() => handleMedia(data.type)}>
+          {DATA.map((data, i) => (
+            <TouchableOpacity onPress={() => handleMedia(data.type)} key={i}>
               <FlexColumnContainer align="center">
                 {data.image}
                 <HeaderText2 fontSize={12}>{data.name}</HeaderText2>

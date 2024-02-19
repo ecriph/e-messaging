@@ -69,18 +69,17 @@ export const UsersList = () => {
                     recipientName: list.fullname,
                     userId: user.userId,
                   };
-                  socket.emit('createConversation', payload);
-                  // await api
-                  //   .post('/v1/message/create/conversation', payload)
-                  //   .then((resp) => {
-                  //     navigation.navigate('ChatScreen', {
-                  //       conversationId: resp.data.id,
-                  //       username: resp.data.userName,
-                  //     });
-                  //   })
-                  //   .catch((err) => {
-                  //     Alert.alert(err);
-                  //   });
+                  await api
+                    .post('/v1/message/create/conversation', payload)
+                    .then((resp) => {
+                      navigation.navigate('ChatScreen', {
+                        conversationId: resp.data.id,
+                        username: list.fullname,
+                      });
+                    })
+                    .catch((err) => {
+                      Alert.alert(err);
+                    });
                 }}
               >
                 <FlexRowContainer

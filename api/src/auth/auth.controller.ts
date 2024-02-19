@@ -31,14 +31,12 @@ import { AuthContext } from './auth-context';
 import { WithAuthContext } from './auth-context.decorator';
 import { RegisterPushTokenSchema } from '@/shared/users/user-push-token/reister-push-token.schemas';
 import { RegisterPushTokenDTO } from '@/shared/users/user-push-token/register-push-token.dto';
-import { EventGateway } from 'src/event/event.gateway';
 
 @Controller('/auth')
 export class AuthController {
   constructor(
     private readonly prisma: PrismaClientService,
     private readonly jwtService: JwtService,
-    private readonly event: EventGateway,
   ) {}
 
   @Post('/login')

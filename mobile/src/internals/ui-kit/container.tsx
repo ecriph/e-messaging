@@ -108,6 +108,8 @@ interface FlexRowProps {
   br?: string;
   height?: string;
   padTop?: string;
+  pt?: string;
+  pb?: string;
 }
 export const PressableContainer = styled.Pressable<PressableContainerProps>`
   padding: ${({ padding }) => padding || '0px'};
@@ -171,6 +173,8 @@ export const FlexColumnContainer = styled.View<FlexRowProps>`
   align-items: ${({ align }) => align || 'stretch'};
   height: ${({ height }) => height || 'auto'};
   background-color: ${({ bg }) => bg || ''};
+  padding-top: ${({ pt }) => pt || '0px'};
+  padding-bottom: ${({ pb }) => pb || '0px'};
 `;
 
 export const Circle = styled.View<FlexRowProps>`

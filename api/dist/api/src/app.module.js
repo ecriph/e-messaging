@@ -13,20 +13,25 @@ const core_1 = require("@nestjs/core");
 const all_exceptions_filter_1 = require("./internals/error-handling/all-exceptions.filter");
 const logging_module_1 = require("./internals/logging/logging.module");
 const message_module_1 = require("./message/message.module");
-const event_gateway_1 = require("./event/event.gateway");
 const event_module_1 = require("./event/event.module");
+const prisma_client_module_1 = require("./internals/database/prisma-client.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [logging_module_1.LoggingModule, auth_module_1.AuthModule, message_module_1.MessageModule, event_module_1.EventModule],
+        imports: [
+            logging_module_1.LoggingModule,
+            auth_module_1.AuthModule,
+            message_module_1.MessageModule,
+            event_module_1.EventModule,
+            prisma_client_module_1.PrismaClientModule,
+        ],
         providers: [
             {
                 provide: core_1.APP_FILTER,
                 useClass: all_exceptions_filter_1.AllExceptionsFilter,
             },
-            event_gateway_1.EventGateway,
         ],
     })
 ], AppModule);

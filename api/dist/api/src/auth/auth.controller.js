@@ -55,12 +55,10 @@ const auth_context_1 = require("./auth-context");
 const auth_context_decorator_1 = require("./auth-context.decorator");
 const reister_push_token_schemas_1 = require("../../../shared/src/users/user-push-token/reister-push-token.schemas");
 const register_push_token_dto_1 = require("../../../shared/src/users/user-push-token/register-push-token.dto");
-const event_gateway_1 = require("../event/event.gateway");
 let AuthController = class AuthController {
-    constructor(prisma, jwtService, event) {
+    constructor(prisma, jwtService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
-        this.event = event;
     }
     async loginUser(userLogin) {
         return this.prisma.getClient().$transaction(async (tx) => {
@@ -241,7 +239,6 @@ __decorate([
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('/auth'),
     __metadata("design:paramtypes", [prisma_client_service_1.PrismaClientService,
-        jwt_service_1.JwtService,
-        event_gateway_1.EventGateway])
+        jwt_service_1.JwtService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

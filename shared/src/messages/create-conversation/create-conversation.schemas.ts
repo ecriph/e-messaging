@@ -6,5 +6,6 @@ export const CreateConversationSchema: Schema<createConversationDTO> = z.object(
     recipientId: z.string(),
     recipientName: z.string(),
     userName: z.string(),
+    userId: z.string(),
   }
 );

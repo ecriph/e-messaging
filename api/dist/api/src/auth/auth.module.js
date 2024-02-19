@@ -13,13 +13,12 @@ const auth_guard_1 = require("./auth.guard");
 const auth_controller_1 = require("./auth.controller");
 const prisma_client_module_1 = require("../internals/database/prisma-client.module");
 const jwt_module_1 = require("../internals/api/jwt.module");
-const event_module_1 = require("../event/event.module");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_client_module_1.PrismaClientModule, jwt_module_1.JwtModule, event_module_1.EventModule],
+        imports: [prisma_client_module_1.PrismaClientModule, jwt_module_1.JwtModule],
         providers: [
             {
                 provide: core_1.APP_GUARD,
