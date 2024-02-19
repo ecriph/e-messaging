@@ -30,24 +30,38 @@ export const ChatList = () => {
   const [_convo, setConvo] = useState<ConversationResponseListDTO[]>();
   const navigation = useNavigation();
   const user = useAppSelector((state) => state.user);
-  const getConvo = useCallback(async () => {
-    await api
-      .get('/v1/message/list/conversation')
-      .then((resp) => {
-        setConvo(resp.data);
-      })
-      .catch((err) => {
-        console.log('Error: ', err);
-      });
-  }, []);
+  const [typing, setTyping] = useState<string>('');
+
+  // const getConvo = useCallback(async () => {
+  //   await api
+  //     .get('/v1/message/list/conversation')
+  //     .then((resp) => {
+  //       setConvo(resp.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log('Error: ', err);
+  //     });
+  // }, []);
 
   useLayoutEffect(() => {
-    getConvo();
+    socket.emit('listConvo', { userId: user.userId });
+    socket.on('conversationList', (data) => {
+      setConvo(data);
+    });
   }, []);
 
   useEffect(() => {
+    socket.emit('listConvo', { userId: user.userId });
     socket.on('conversationList', (data) => {
       setConvo(data);
+    });
+    socket.on('typingResponse', (resp) => {
+      if (resp.id !== user.userId) {
+        setTyping(resp.message);
+      }
+      setTimeout(() => {
+        setTyping('');
+      }, 10000);
     });
   }, [socket]);
 
@@ -106,7 +120,23 @@ export const ChatList = () => {
                           color={Colors.grey}
                           font={Font.Medium}
                         >
-                          {conversation.messages.content}
+                          {typing === '' ? (
+                            <SmallText
+                              font={Font.Medium}
+                              fontSize={12}
+                              color={Colors.grey}
+                            >
+                              {conversation.messages.content}
+                            </SmallText>
+                          ) : (
+                            <SmallText
+                              font={Font.SemiBold}
+                              fontSize={12}
+                              color={Colors.green}
+                            >
+                              {typing}
+                            </SmallText>
+                          )}
                         </HeaderText1>
                       </FlexColumnContainer>
                       <FlexColumnContainer

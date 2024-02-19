@@ -49,7 +49,7 @@ const ChatScreen = ({ route }: Props) => {
   const user = useAppSelector((state: UserRootState) => state.user);
   const dispatch = useAppDispatch();
   const scrollViewRef = useRef<ScrollView>(null);
-  const [typing, setTyping] = useState<string>();
+  const [typing, setTyping] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const snapPoints = React.useMemo(() => ['30%', '40%', '75%', '95%'], []);
   const {
@@ -71,59 +71,64 @@ const ChatScreen = ({ route }: Props) => {
     setMessage(value);
   };
 
-  // const getMessages = useCallback(async () => {
+  const handleStatus = (cid: string, name: string) => {
+    const data = { conversationId: cid, username: name, userId: user.userId };
+    socket.emit('onType', data);
+  };
 
-  //   await api.get(
-  //       '/v1/message/list/message/' + conversationId
-  //     ).then(resp => {
-  //       setChatMessage(resp.data)
-
-  //     }).catch(err => {
-  //       Alert.alert(err)
-  //     })
-
-  // }, []);
+  const getMessages = useCallback(async () => {
+    await api
+      .get('/v1/message/list/message/' + conversationId)
+      .then((resp) => {
+        setChatMessage(resp.data);
+      })
+      .catch((err) => {
+        Alert.alert(err);
+      });
+  }, []);
 
   useLayoutEffect(() => {
-    socket.emit('findConversation', conversationId);
-    socket.on('foundConverstaion', (messages) => {
-      setChatMessage(messages);
-    });
+    getMessages();
+    handleScrollToEnd();
   }, []);
 
   useEffect(() => {
-    socket.on('foundConverstaion', (messages) => {
+    socket.on('receiveMessage', (messages) => {
       setChatMessage(messages);
+      handleScrollToEnd();
+    });
+
+    socket.on('typingResponse', (resp) => {
+      if (resp.id !== user.userId) {
+        setTyping(resp.message);
+      }
+      setTimeout(() => {
+        setTyping('');
+      }, 10000);
     });
   }, [socket]);
 
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={async (values, { resetForm }) => {
+      onSubmit={async (values) => {
         const newMessage = {
           senderId: user.userId,
-          content: values.message,
+          content: message,
           createdAt: new Date(Date.now()),
+          category: 'Text',
         };
         const payload = {
-          content: values.message,
-          senderId: user.userId,
+          content: message,
+          userId: user.userId,
           conversationId: conversationId,
+          category: 'Text',
         };
 
-        socket.emit('newMessage', payload);
-
-        // const messages = await api
-        //   .post('/v1/message/create/message', payload)
-        //   .then((resp) => {})
-        //   .catch((err) => {
-        //     Alert.alert(err);
-        //   });
-
-        // setChatMessage([...chatMessage, newMessage]);
+        socket.emit('sendMessage', payload);
+        setChatMessage((data) => [...data, newMessage]);
         handleScrollToEnd();
-        resetForm();
+        setMessage('');
       }}
     >
       {({ errors, handleChange, handleSubmit, values }) => (
@@ -145,7 +150,7 @@ const ChatScreen = ({ route }: Props) => {
                 fontSize={FontSize.header1}
                 error={errors.message}
                 onFocus={handleScrollToEnd}
-                // onKeyPress={handleStatus}
+                onKeyPress={() => handleStatus(conversationId, user.fullname)}
               />
               {message !== '' ? (
                 <ChatButton width="15%" mb="0px" onPress={handleSubmit} />
@@ -164,23 +169,45 @@ const ChatScreen = ({ route }: Props) => {
               >
                 <ChatAttachment
                   onClick={handleCloseModal}
-                  onSaveUrl={(url) => console.log(url)}
+                  onSaveUrl={(url) => {
+                    const payload = {
+                      content: url,
+                      userId: user.userId,
+                      conversationId: conversationId,
+                      category: 'Photo',
+                    };
+                    const newMessage = {
+                      senderId: user.userId,
+                      content: url,
+                      createdAt: new Date(Date.now()),
+                      category: 'Photo',
+                    };
+                    socket.emit('sendMessage', payload);
+                    setChatMessage((data) => [...data, newMessage]);
+                    handleScrollToEnd();
+                    setMessage('');
+                  }}
                 />
               </BottomSheetModal>
             </FlexRowContainer>
           }
         >
-          <FlexColumnContainer mt="40px">
-            <FlexRowContainer justifyContent="space-between" mb="20px">
+          <FlexColumnContainer mt="20px" pt="50px" pb="50px">
+            <FlexRowContainer justifyContent="space-between">
               <FlexColumnContainer>
-                <FlexRowContainer justifyContent="space-between" align="center">
+                <FlexRowContainer justifyContent="flex-start" align="center">
                   <BackArrow />
-
-                  <HeaderText1 font={Font.Bold} ml="15px">
-                    {username}
-                  </HeaderText1>
-                  <SmallText fontSize={10}>{typing}</SmallText>
                 </FlexRowContainer>
+                <FlexRowContainer justifyContent="flex-start">
+                  <HeaderText1 font={Font.Bold}>{username}</HeaderText1>
+                </FlexRowContainer>
+                <SmallText
+                  fontSize={12}
+                  font={Font.SemiBold}
+                  color={Colors.green}
+                >
+                  {typing}
+                </SmallText>
               </FlexColumnContainer>
               <FlexColumnContainer>
                 {/* <Ionicons name="call-outline" size={24} color="black" /> */}

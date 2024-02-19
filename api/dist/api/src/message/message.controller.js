@@ -16,14 +16,11 @@ exports.MessageController = void 0;
 const openapi = require("@nestjs/swagger");
 const create_conversation_dto_1 = require("../../../shared/src/messages/create-conversation/create-conversation.dto");
 const create_conversation_schemas_1 = require("../../../shared/src/messages/create-conversation/create-conversation.schemas");
-const create_message_dto_1 = require("../../../shared/src/messages/create-message/create-message.dto");
-const create_message_schemas_1 = require("../../../shared/src/messages/create-message/create-message.schemas");
 const list_message_dto_1 = require("../../../shared/src/messages/list-message/list-message.dto");
 const list_message_schemas_1 = require("../../../shared/src/messages/list-message/list-message.schemas");
 const common_1 = require("@nestjs/common");
 const auth_context_1 = require("../auth/auth-context");
 const auth_context_decorator_1 = require("../auth/auth-context.decorator");
-const event_gateway_1 = require("../event/event.gateway");
 const prisma_client_service_1 = require("../internals/database/prisma-client.service");
 const validation_pipe_1 = require("../internals/validation/validation.pipe");
 const lastMessage = (conversation) => {
@@ -32,9 +29,8 @@ const lastMessage = (conversation) => {
             : [] });
 };
 let MessageController = class MessageController {
-    constructor(prisma, event) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.event = event;
     }
     async getUsers(authContext) {
         const users = await this.prisma.getClient().user.findMany({
@@ -63,17 +59,6 @@ let MessageController = class MessageController {
             },
         });
         return getMessages;
-    }
-    async createMessage(authContext, sendMessage) {
-        const message = await this.prisma.getClient().message.create({
-            data: {
-                content: sendMessage.content,
-                senderId: authContext.user.id,
-                conversationId: sendMessage.conversationId,
-            },
-        });
-        this.event.sendMessage(message);
-        return message;
     }
     async createConversation(authContext, createConversation) {
         const conversation = await this.prisma.getClient().conversation.create({
@@ -116,16 +101,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "getMessages", null);
 __decorate([
-    (0, common_1.Post)('/create/message'),
-    openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
-    __param(1, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(create_message_schemas_1.CreateMessageSchema))),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [auth_context_1.AuthContext,
-        create_message_dto_1.CreateMessageDTO]),
-    __metadata("design:returntype", Promise)
-], MessageController.prototype, "createMessage", null);
-__decorate([
     (0, common_1.Post)('/create/conversation'),
     openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
@@ -137,7 +112,6 @@ __decorate([
 ], MessageController.prototype, "createConversation", null);
 exports.MessageController = MessageController = __decorate([
     (0, common_1.Controller)({ path: 'message', version: '1' }),
-    __metadata("design:paramtypes", [prisma_client_service_1.PrismaClientService,
-        event_gateway_1.EventGateway])
+    __metadata("design:paramtypes", [prisma_client_service_1.PrismaClientService])
 ], MessageController);
 //# sourceMappingURL=message.controller.js.map

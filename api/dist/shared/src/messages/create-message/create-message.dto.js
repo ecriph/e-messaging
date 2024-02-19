@@ -4,13 +4,13 @@ exports.CreateChatMessageDTO = exports.CreateMessageDTO = void 0;
 const openapi = require("@nestjs/swagger");
 class CreateMessageDTO {
     static _OPENAPI_METADATA_FACTORY() {
-        return { content: { required: true, type: () => String }, conversationId: { required: true, type: () => String } };
+        return { userId: { required: true, type: () => String }, content: { required: true, type: () => String }, conversationId: { required: true, type: () => String }, category: { required: true, type: () => String } };
     }
 }
 exports.CreateMessageDTO = CreateMessageDTO;
 class CreateChatMessageDTO {
     static _OPENAPI_METADATA_FACTORY() {
-        return { senderId: { required: true, type: () => String }, content: { required: true, type: () => String }, createdAt: { required: true, type: () => Date } };
+        return { senderId: { required: true, type: () => String }, content: { required: true, type: () => String }, createdAt: { required: true, type: () => Date }, category: { required: true, type: () => String } };
     }
 }
 exports.CreateChatMessageDTO = CreateChatMessageDTO;

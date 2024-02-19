@@ -9,12 +9,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventModule = void 0;
 const common_1 = require("@nestjs/common");
 const event_gateway_1 = require("./event.gateway");
+const prisma_client_module_1 = require("../internals/database/prisma-client.module");
 let EventModule = class EventModule {
 };
 exports.EventModule = EventModule;
 exports.EventModule = EventModule = __decorate([
     (0, common_1.Module)({
         providers: [event_gateway_1.EventGateway],
+        imports: [prisma_client_module_1.PrismaClientModule],
         exports: [event_gateway_1.EventGateway],
     })
 ], EventModule);

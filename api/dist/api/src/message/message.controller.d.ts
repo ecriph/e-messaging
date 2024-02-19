@@ -1,13 +1,10 @@
 import { createConversationDTO } from '@/shared/messages/create-conversation/create-conversation.dto';
-import { CreateMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 import { ListMessageDTO } from '@/shared/messages/list-message/list-message.dto';
 import { AuthContext } from 'src/auth/auth-context';
-import { EventGateway } from 'src/event/event.gateway';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
 export declare class MessageController {
     private readonly prisma;
-    private readonly event;
-    constructor(prisma: PrismaClientService, event: EventGateway);
+    constructor(prisma: PrismaClientService);
     getUsers(authContext: AuthContext): Promise<({
         conversations: {
             id: string;
@@ -21,6 +18,7 @@ export declare class MessageController {
         messages: {
             id: string;
             content: string;
+            category: string;
             senderId: string;
             conversationId: string;
             createdAt: Date;
@@ -38,6 +36,7 @@ export declare class MessageController {
         messages: {
             id: string;
             content: string;
+            category: string;
             senderId: string;
             conversationId: string;
             createdAt: Date;
@@ -54,23 +53,17 @@ export declare class MessageController {
     getMessages(authContext: AuthContext, listMessage: ListMessageDTO): Promise<{
         id: string;
         content: string;
+        category: string;
         senderId: string;
         conversationId: string;
         createdAt: Date;
         updatedAt: Date;
     }[]>;
-    createMessage(authContext: AuthContext, sendMessage: CreateMessageDTO): Promise<{
-        id: string;
-        content: string;
-        senderId: string;
-        conversationId: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }>;
     createConversation(authContext: AuthContext, createConversation: createConversationDTO): Promise<{
         messages: {
             id: string;
             content: string;
+            category: string;
             senderId: string;
             conversationId: string;
             createdAt: Date;

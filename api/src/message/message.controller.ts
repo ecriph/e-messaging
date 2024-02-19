@@ -1,14 +1,13 @@
 import { createConversationDTO } from '@/shared/messages/create-conversation/create-conversation.dto';
 import { CreateConversationSchema } from '@/shared/messages/create-conversation/create-conversation.schemas';
-import { CreateMessageDTO } from '@/shared/messages/create-message/create-message.dto';
-import { CreateMessageSchema } from '@/shared/messages/create-message/create-message.schemas';
+// import { CreateMessageDTO } from '@/shared/messages/create-message/create-message.dto';
+// import { CreateMessageSchema } from '@/shared/messages/create-message/create-message.schemas';
 import { ListMessageDTO } from '@/shared/messages/list-message/list-message.dto';
 import { ListMessageSchema } from '@/shared/messages/list-message/list-message.schemas';
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { Conversation, Message } from '@prisma/client';
 import { AuthContext } from 'src/auth/auth-context';
 import { WithAuthContext } from 'src/auth/auth-context.decorator';
-import { EventGateway } from 'src/event/event.gateway';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
 import { ValidationPipe } from 'src/internals/validation/validation.pipe';
 
@@ -24,10 +23,7 @@ const lastMessage = (conversation: Conversation & { messages: Message[] }) => {
 
 @Controller({ path: 'message', version: '1' })
 export class MessageController {
-  constructor(
-    private readonly prisma: PrismaClientService,
-    private readonly event: EventGateway,
-  ) {}
+  constructor(private readonly prisma: PrismaClientService) {}
 
   @Get('/list/users')
   async getUsers(@WithAuthContext() authContext: AuthContext) {
@@ -72,24 +68,22 @@ export class MessageController {
     return getMessages;
   }
 
-  @Post('/create/message')
-  async createMessage(
-    @WithAuthContext() authContext: AuthContext,
-    @Body(new ValidationPipe(CreateMessageSchema))
-    sendMessage: CreateMessageDTO,
-  ) {
-    const message = await this.prisma.getClient().message.create({
-      data: {
-        content: sendMessage.content,
-        senderId: authContext.user.id,
-        conversationId: sendMessage.conversationId,
-      },
-    });
+  // @Post('/create/message')
+  // async createMessage(
+  //   @WithAuthContext() authContext: AuthContext,
+  //   @Body(new ValidationPipe(CreateMessageSchema))
+  //   sendMessage: CreateMessageDTO,
+  // ) {
+  //   const message = await this.prisma.getClient().message.create({
+  //     data: {
+  //       content: sendMessage.content,
+  //       senderId: authContext.user.id,
+  //       conversationId: sendMessage.conversationId,
+  //     },
+  //   });
 
-    // this.event.sendMessage(message);
-
-    return message;
-  }
+  //   return message;
+  // }
 
   @Post('/create/conversation')
   async createConversation(
