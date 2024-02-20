@@ -181,6 +181,9 @@ export class AuthController {
 
       return {
         access_token: newAccessToken.token,
+        fullname: checkUser.fullname,
+        userId: checkUser.id,
+        status: 'success',
       };
     });
   }

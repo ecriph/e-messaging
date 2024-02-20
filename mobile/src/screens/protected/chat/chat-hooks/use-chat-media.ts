@@ -8,9 +8,10 @@ const FOLDER = 'chat';
 
 type MediaProps = {
   onSucess: (value: string) => void;
+  onLoading: (value: boolean) => void;
 };
 
-export const useChatMedia = ({ onSucess }: MediaProps) => {
+export const useChatMedia = ({ onSucess, onLoading }: MediaProps) => {
   const handleMedia = async (media: string) => {
     let result = await DocumentPicker.getDocumentAsync({
       type: `${media}/*`,
@@ -31,6 +32,7 @@ export const useChatMedia = ({ onSucess }: MediaProps) => {
     media: string | undefined
   ) => {
     try {
+      onLoading(true);
       const formData = new FormData();
       formData.append('file', {
         uri,
@@ -54,6 +56,7 @@ export const useChatMedia = ({ onSucess }: MediaProps) => {
       console.log('Upload result:', data);
     } catch (error) {
       console.error('Error uploading to Cloudinary:', error);
+      onLoading(false);
     }
   };
 

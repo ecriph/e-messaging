@@ -175,6 +175,9 @@ let AuthController = class AuthController {
             const newAccessToken = await this.jwtService.signToken(accesspayload);
             return {
                 access_token: newAccessToken.token,
+                fullname: checkUser.fullname,
+                userId: checkUser.id,
+                status: 'success',
             };
         });
     }

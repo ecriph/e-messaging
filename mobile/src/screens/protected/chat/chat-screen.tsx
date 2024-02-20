@@ -23,7 +23,7 @@ import {
   UserRootState,
 } from '../../../redux/user/reducer';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { Alert } from 'react-native';
+import { ActivityIndicator, Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
 import { RouteProp } from '@react-navigation/native';
 import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
@@ -54,6 +54,7 @@ const ChatScreen = ({ route }: Props) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [typing, setTyping] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const [token, setToken] = useState<string>('');
   const snapPoints = React.useMemo(() => ['30%', '40%', '75%', '95%'], []);
   const {
@@ -153,60 +154,84 @@ const ChatScreen = ({ route }: Props) => {
           bgColor={isOpen ? '#00000090' : Colors.white}
           useOverlay={isOpen ? true : false}
           BottomComponent={
-            <FlexRowContainer
-              padTop="20px"
-              align="center"
-              justifyContent="space-between"
-            >
-              <PrimaryInput
-                style={{ width: '80%' }}
-                text=""
-                placeholder="Type message here"
-                value={message}
-                onChangeText={(value) => handleMessage(value)}
-                fontSize={FontSize.header1}
-                error={errors.message}
-                onFocus={handleScrollToEnd}
-                onKeyPress={() => handleStatus(conversationId, user.fullname)}
-              />
-              {message !== '' ? (
-                <ChatButton width="15%" mb="0px" onPress={handleSubmit} />
+            <>
+              {loading ? (
+                <FlexRowContainer
+                  justifyContent="center"
+                  align="center"
+                  bg="white"
+                  padTop="20px"
+                >
+                  <SmallText fontSize={14}>Hold on uploading media</SmallText>
+                  <ActivityIndicator size="small" color={Colors.green} />
+                </FlexRowContainer>
               ) : (
-                <AttachButton
-                  width="15%"
-                  mb="0px"
-                  onPress={() => handlePresentModalOpen(0)}
-                />
+                <FlexRowContainer
+                  padTop="20px"
+                  align="center"
+                  justifyContent="space-between"
+                >
+                  <PrimaryInput
+                    style={{ width: '80%' }}
+                    text=""
+                    placeholder="Type message here"
+                    value={message}
+                    onChangeText={(value) => handleMessage(value)}
+                    fontSize={FontSize.header1}
+                    error={errors.message}
+                    onFocus={handleScrollToEnd}
+                    onKeyPress={() =>
+                      handleStatus(conversationId, user.fullname)
+                    }
+                  />
+                  {message !== '' ? (
+                    <ChatButton width="15%" mb="0px" onPress={handleSubmit} />
+                  ) : (
+                    <AttachButton
+                      width="15%"
+                      mb="0px"
+                      onPress={() => handlePresentModalOpen(0)}
+                    />
+                  )}
+
+                  <BottomSheetModal
+                    ref={sheetRef}
+                    onChange={handleClick}
+                    index={openIndex}
+                    snapPoints={snapPoints}
+                  >
+                    <ChatAttachment
+                      onClick={handleCloseModal}
+                      onLoad={(status) => setLoading(status)}
+                      onSaveUrl={(url) => {
+                        const payload = {
+                          content: url,
+                          userId: user.userId,
+                          conversationId: conversationId,
+                          category: 'Photo',
+                        };
+                        const newMessage = {
+                          senderId: user.userId,
+                          content: url,
+                          createdAt: new Date(Date.now()),
+                          category: 'Photo',
+                        };
+                        socket.emit('sendMessage', payload);
+                        setChatMessage((data) => [...data, newMessage]);
+                        sendPushNotification(
+                          token,
+                          'An image attachment was sent',
+                          user.fullname
+                        );
+                        handleScrollToEnd();
+                        setLoading(false);
+                        setMessage('');
+                      }}
+                    />
+                  </BottomSheetModal>
+                </FlexRowContainer>
               )}
-              <BottomSheetModal
-                ref={sheetRef}
-                onChange={handleClick}
-                index={openIndex}
-                snapPoints={snapPoints}
-              >
-                <ChatAttachment
-                  onClick={handleCloseModal}
-                  onSaveUrl={(url) => {
-                    const payload = {
-                      content: url,
-                      userId: user.userId,
-                      conversationId: conversationId,
-                      category: 'Photo',
-                    };
-                    const newMessage = {
-                      senderId: user.userId,
-                      content: url,
-                      createdAt: new Date(Date.now()),
-                      category: 'Photo',
-                    };
-                    socket.emit('sendMessage', payload);
-                    setChatMessage((data) => [...data, newMessage]);
-                    handleScrollToEnd();
-                    setMessage('');
-                  }}
-                />
-              </BottomSheetModal>
-            </FlexRowContainer>
+            </>
           }
         >
           <FlexColumnContainer mt="20px" pt="50px" pb="50px">
