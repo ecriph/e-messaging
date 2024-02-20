@@ -8,7 +8,7 @@ import * as Notifications from 'expo-notifications';
 import { Notification, Subscription } from 'expo-notifications';
 import { LOGIN_USER, REGISTER_TOKEN } from '../../redux/user/reducer';
 import axios from 'axios';
-import { REFRESHTOKEN, ACCESSTOKEN } from '../data/const';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../data/const';
 
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => ({
@@ -50,7 +50,7 @@ function useCatchResource(store: any) {
     }
 
     async function Auth() {
-      await AsyncStorage.getItem(REFRESHTOKEN)
+      await AsyncStorage.getItem(REFRESH_TOKEN)
         .then(async (token) => {
           if (token === null) {
             console.log('no token');
@@ -63,7 +63,7 @@ function useCatchResource(store: any) {
             console.log(resp.data);
             const { access_token, status, fullname, userId } = resp.data;
             if (status === 'success') {
-              AsyncStorage.setItem(ACCESSTOKEN, access_token);
+              await AsyncStorage.setItem(ACCESS_TOKEN, access_token);
               await store.dispatch(
                 LOGIN_USER({ userId: userId, fullname: fullname })
               );

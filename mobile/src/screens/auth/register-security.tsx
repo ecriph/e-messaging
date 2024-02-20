@@ -13,8 +13,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { LOGIN_USER } from '../../redux/user/reducer';
 import * as Yup from 'yup';
 import { api } from '../../internals/api/use-main-axios';
-import { ACCESSTOKEN, REFRESHTOKEN } from '../../internals/data/const';
 import BackArrow from '../../internals/ui-kit/back-arrow';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../internals/data/const';
 
 interface RegisterProps {
   phone: string;
@@ -48,8 +48,8 @@ export const RegisterSecurity = () => {
           .post('/auth/register', payload)
           .then(async (resp) => {
             const { token, refresh_token, userId } = resp.data;
-            await AsyncStorage.setItem(ACCESSTOKEN, token);
-            await AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
+            await AsyncStorage.setItem(ACCESS_TOKEN, token);
+            await AsyncStorage.setItem(REFRESH_TOKEN, refresh_token);
             setLoading(false);
             dispatch(LOGIN_USER({ fullname: user.fullname, userId: userId }));
           })

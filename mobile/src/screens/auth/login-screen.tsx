@@ -11,17 +11,14 @@ import { Colors, Font } from '../../internals/ui-kit/theme';
 import { PasswordInput, PrimaryInput } from '../../internals/ui-kit/input';
 import { Formik } from 'formik';
 import { LOGIN_USER } from '../../redux/user/reducer';
-import { loadMessage } from '../../redux/chat/action';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { useMainApi } from '../../internals/api/use-main-request';
-import ErrorOverlayModal from '../../internals/ui-kit/error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TransportFailure } from '../../internals/transport/transport-failure';
 import * as Yup from 'yup';
 import { api } from '../../internals/api/use-main-axios';
-import { ACCESSTOKEN, REFRESHTOKEN } from '../../internals/data/const';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../internals/data/const';
 
 type Props = {};
 interface LoginProps {
@@ -52,9 +49,10 @@ const LoginScreen = (props: Props) => {
           .post('auth/login', payload)
           .then(async (resp) => {
             const { access_token, refresh_token, fullname, userId } = resp.data;
-            await AsyncStorage.setItem(ACCESSTOKEN, access_token);
-            await AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
-            console.log(refresh_token);
+            await AsyncStorage.setItem(ACCESS_TOKEN, access_token);
+            await AsyncStorage.setItem(REFRESH_TOKEN, refresh_token);
+            await AsyncStorage.getItem(REFRESH_TOKEN);
+            console.log('reftoken' + refresh_token);
             setLoading(false);
             dispatch(LOGIN_USER({ fullname: fullname, userId: userId }));
           })
