@@ -18,7 +18,6 @@ import ErrorOverlayModal from '../../internals/ui-kit/error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TransportFailure } from '../../internals/transport/transport-failure';
 import * as Yup from 'yup';
-import socket from '../../internals/service/socket/socket-services';
 import { api } from '../../internals/api/use-main-axios';
 import { ACCESSTOKEN, REFRESHTOKEN } from '../../internals/data/const';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -51,10 +50,10 @@ const LoginScreen = (props: Props) => {
         const payload = { email: values.email, password: values.password };
         await api
           .post('auth/login', payload)
-          .then((resp) => {
+          .then(async (resp) => {
             const { access_token, refresh_token, fullname, userId } = resp.data;
-            AsyncStorage.setItem(ACCESSTOKEN, access_token);
-            AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
+            await AsyncStorage.setItem(ACCESSTOKEN, access_token);
+            await AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
             console.log(refresh_token);
             setLoading(false);
             dispatch(LOGIN_USER({ fullname: fullname, userId: userId }));
