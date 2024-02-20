@@ -37,9 +37,6 @@ function useCatchResource(store: any) {
     SemiBold: require('../../../assets/fonts/Inter-SemiBold.ttf'),
   };
 
-  const getUserCredentials = async (token: string) => {
-    await store.dispatch(confirmToken(token));
-  };
   useEffect(() => {
     async function loadResourcesAsync() {
       const images = [
@@ -64,15 +61,15 @@ function useCatchResource(store: any) {
               `${EnvironmentVariables.MAIN_API_URL}/auth/refresh-token`,
               { refreshToken: token }
             );
-            const { access_token, refresh_token, fullname, userId } = resp.data;
-            // if (status === 'success') {
-            AsyncStorage.setItem(ACCESSTOKEN, access_token);
-            await store.dispatch(
-              LOGIN_USER({ userId: userId, fullname: fullname })
-            );
-            // } else {
-            //   return;
-            // }
+            const { access_token, status, fullname, userId } = resp.data;
+            if (status === 'success') {
+              AsyncStorage.setItem(ACCESSTOKEN, access_token);
+              await store.dispatch(
+                LOGIN_USER({ userId: userId, fullname: fullname })
+              );
+            } else {
+              return;
+            }
           }
         })
         .catch((error) => console.log('Error checking authentication:', error));

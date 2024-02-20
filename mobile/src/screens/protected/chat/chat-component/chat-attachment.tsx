@@ -18,6 +18,7 @@ import { useChatMedia } from '../chat-hooks/use-chat-media';
 type Props = {
   onClick: () => void;
   onSaveUrl: (url: string) => void;
+  onLoad: (status: boolean) => void;
 };
 
 const DATA = [
@@ -26,28 +27,31 @@ const DATA = [
     image: <FontAwesome name="photo" size={24} color="black" />,
     type: 'image',
   },
-  {
-    name: 'Video',
-    image: <Entypo name="video" size={24} color="black" />,
-    type: 'video',
-  },
-  {
-    name: 'Audio',
-    image: <MaterialIcons name="multitrack-audio" size={24} color="black" />,
-    type: 'audio',
-  },
+  // {
+  //   name: 'Video',
+  //   image: <Entypo name="video" size={24} color="black" />,
+  //   type: 'video',
+  // },
+  // {
+  //   name: 'Audio',
+  //   image: <MaterialIcons name="multitrack-audio" size={24} color="black" />,
+  //   type: 'audio',
+  // },
 ];
 
-export const ChatAttachment = ({ onClick, onSaveUrl }: Props) => {
+export const ChatAttachment = ({ onClick, onSaveUrl, onLoad }: Props) => {
   const { handleMedia } = useChatMedia({
     onSucess(url) {
       onClick();
       onSaveUrl(url);
     },
+
+    onLoading(status) {
+      onClick();
+      onLoad(status);
+    },
   });
-  const onSucess = (url: string) => {
-    onClick();
-  };
+
   return (
     <MainContainer>
       <FlexColumnContainer mt="10px">
