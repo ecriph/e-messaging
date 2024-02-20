@@ -4,14 +4,9 @@ import {
   FlexRowContainer,
   MainContainer,
 } from '../../internals/ui-kit/container';
-import {
-  PasswordInput,
-  PhoneNumberInput,
-  PrimaryInput,
-} from '../../internals/ui-kit/input';
+import { PasswordInput, PrimaryInput } from '../../internals/ui-kit/input';
 import { PrimaryButton } from '../../internals/ui-kit/button';
 import { Formik } from 'formik';
-import { useMainApi } from '../../internals/api/use-main-request';
 import { TransportFailure } from '../../internals/transport/transport-failure';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -28,7 +23,6 @@ interface RegisterProps {
 export const RegisterSecurity = () => {
   const initialValues: RegisterProps = { phone: '', password: '' };
 
-  const { postRequest } = useMainApi();
   const user = useAppSelector((state) => state.user);
   const [isLoading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -52,10 +46,10 @@ export const RegisterSecurity = () => {
         };
         await api
           .post('/auth/register', payload)
-          .then((resp) => {
+          .then(async (resp) => {
             const { token, refresh_token, userId } = resp.data;
-            AsyncStorage.setItem(ACCESSTOKEN, token);
-            AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
+            await AsyncStorage.setItem(ACCESSTOKEN, token);
+            await AsyncStorage.setItem(REFRESHTOKEN, refresh_token);
             setLoading(false);
             dispatch(LOGIN_USER({ fullname: user.fullname, userId: userId }));
           })

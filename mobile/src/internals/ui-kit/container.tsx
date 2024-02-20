@@ -127,6 +127,7 @@ export const FlexRowContainer = styled.View<FlexRowProps>`
   width: ${({ width }) => width || 'auto'};
   background-color: ${({ bg }) => bg || ''};
   padding-top: ${({ padTop }) => padTop || ''};
+  padding-bottom: ${({ pb }) => pb || '0px'};
 `;
 export const FlexRowRecieveChat = styled.View<FlexRowProps>`
   display: flex;

@@ -161,6 +161,7 @@ const ChatScreen = ({ route }: Props) => {
                   align="center"
                   bg="white"
                   padTop="20px"
+                  pb="30px"
                 >
                   <SmallText fontSize={14}>Hold on uploading media</SmallText>
                   <ActivityIndicator size="small" color={Colors.green} />

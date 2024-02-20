@@ -3,12 +3,10 @@ import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { confirmToken } from '../../redux/user/action';
 import { registerForPushNotificationsAsync } from '../service/push-notification';
 import * as Notifications from 'expo-notifications';
 import { Notification, Subscription } from 'expo-notifications';
 import { LOGIN_USER, REGISTER_TOKEN } from '../../redux/user/reducer';
-import { EnvironmentVariables } from '../runtime/environment-vairables';
 import axios from 'axios';
 import { REFRESHTOKEN, ACCESSTOKEN } from '../data/const';
 
@@ -55,12 +53,14 @@ function useCatchResource(store: any) {
       await AsyncStorage.getItem(REFRESHTOKEN)
         .then(async (token) => {
           if (token === null) {
+            console.log('no token');
             return;
           } else {
             const resp = await axios.post(
-              `${EnvironmentVariables.MAIN_API_URL}/auth/refresh-token`,
+              `https://echat-app-f0f8b632b839.herokuapp.com/auth/refresh-token`,
               { refreshToken: token }
             );
+            console.log(resp.data);
             const { access_token, status, fullname, userId } = resp.data;
             if (status === 'success') {
               AsyncStorage.setItem(ACCESSTOKEN, access_token);
