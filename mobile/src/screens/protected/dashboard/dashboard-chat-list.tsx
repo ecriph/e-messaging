@@ -32,17 +32,6 @@ export const ChatList = () => {
   const user = useAppSelector((state) => state.user);
   const [typing, setTyping] = useState<string>('');
 
-  // const getConvo = useCallback(async () => {
-  //   await api
-  //     .get('/v1/message/list/conversation')
-  //     .then((resp) => {
-  //       setConvo(resp.data);
-  //     })
-  //     .catch((err) => {
-  //       console.log('Error: ', err);
-  //     });
-  // }, []);
-
   useLayoutEffect(() => {
     socket.emit('listConvo', { userId: user.userId });
     socket.on('conversationList', (data) => {
@@ -55,6 +44,7 @@ export const ChatList = () => {
     socket.on('conversationList', (data) => {
       setConvo(data);
     });
+
     socket.on('typingResponse', (resp) => {
       if (resp.id !== user.userId) {
         setTyping(resp.message);
@@ -126,7 +116,9 @@ export const ChatList = () => {
                               fontSize={12}
                               color={Colors.grey}
                             >
-                              {conversation.messages.content}
+                              {conversation.messages.category === 'Text'
+                                ? conversation.messages.content
+                                : 'Photo'}
                             </SmallText>
                           ) : (
                             <SmallText

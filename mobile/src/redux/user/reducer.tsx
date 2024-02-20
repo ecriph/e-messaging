@@ -9,6 +9,7 @@ export type UserState = {
   isUser: boolean;
   userId: string;
   token: string;
+  recipientToken: string;
 };
 
 export type UserRootState = {
@@ -24,6 +25,7 @@ const initialState: UserState = {
   isUser: false,
   userId: '',
   token: '',
+  recipientToken: '',
 };
 
 const auth = createSlice({
@@ -60,6 +62,9 @@ const auth = createSlice({
     REGISTER_TOKEN: (state, action) => {
       state.token = action.payload.token;
     },
+    RECIPIENT_TOKEN: (state, action) => {
+      state.recipientToken = action.payload.recipientToken;
+    },
   },
 });
 
@@ -69,6 +74,7 @@ export const {
   LOGIN_USER,
   SAVE_PERSONAL,
   REGISTER_TOKEN,
+  RECIPIENT_TOKEN,
 } = auth.actions;
 
 export default auth.reducer;

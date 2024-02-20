@@ -22,6 +22,7 @@ const common_1 = require("@nestjs/common");
 const auth_context_1 = require("../auth/auth-context");
 const auth_context_decorator_1 = require("../auth/auth-context.decorator");
 const prisma_client_service_1 = require("../internals/database/prisma-client.service");
+const resource_not_found_exception_1 = require("../internals/server/resource-not-found.exception");
 const validation_pipe_1 = require("../internals/validation/validation.pipe");
 const lastMessage = (conversation) => {
     return Object.assign(Object.assign({}, conversation), { messages: conversation.messages.length > 0
@@ -51,6 +52,30 @@ let MessageController = class MessageController {
         });
         const conversationsWithLastMessage = (await conversation).map(lastMessage);
         return conversationsWithLastMessage;
+    }
+    async getToken(authContext, listMessage) {
+        return this.prisma.getClient().$transaction(async (tx) => {
+            const getMessages = await tx.conversation.findFirst({
+                where: {
+                    id: listMessage.conversationId,
+                },
+            });
+            if (!getMessages)
+                throw new resource_not_found_exception_1.ResourceNotFoundException('Convo does not exist');
+            if (getMessages.userId !== authContext.user.id) {
+                const getToken = await tx.pushToken.findFirst({
+                    where: { userId: getMessages.userId },
+                });
+                return getToken === null || getToken === void 0 ? void 0 : getToken.token;
+            }
+            else if (getMessages.recipientId !== authContext.user.id) {
+                const getToken = await tx.pushToken.findFirst({
+                    where: { userId: getMessages.recipientId },
+                });
+                return getToken === null || getToken === void 0 ? void 0 : getToken.token;
+            }
+            common_1.Logger.log(authContext.user.id);
+        });
     }
     async getMessages(authContext, listMessage) {
         const getMessages = await this.prisma.getClient().message.findMany({
@@ -90,6 +115,16 @@ __decorate([
     __metadata("design:paramtypes", [auth_context_1.AuthContext]),
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "getConversations", null);
+__decorate([
+    (0, common_1.Get)('/list/rtoken/:conversationId'),
+    openapi.ApiResponse({ status: 200, type: String }),
+    __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
+    __param(1, (0, common_1.Param)(new validation_pipe_1.ValidationPipe(list_message_schemas_1.ListMessageSchema))),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_context_1.AuthContext,
+        list_message_dto_1.ListMessageDTO]),
+    __metadata("design:returntype", Promise)
+], MessageController.prototype, "getToken", null);
 __decorate([
     (0, common_1.Get)('/list/message/:conversationId'),
     openapi.ApiResponse({ status: 200 }),
