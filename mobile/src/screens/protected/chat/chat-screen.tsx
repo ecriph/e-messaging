@@ -17,7 +17,11 @@ import { AttachButton, ChatButton } from '../../../internals/ui-kit/button';
 import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
 import BackArrow from '../../../internals/ui-kit/back-arrow';
 import { Formik } from 'formik';
-import { UserRootState } from '../../../redux/user/reducer';
+import {
+  RECIPIENT_TOKEN,
+  REGISTER_TOKEN,
+  UserRootState,
+} from '../../../redux/user/reducer';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
@@ -47,10 +51,10 @@ const ChatScreen = ({ route }: Props) => {
   const { conversationId, username } = route.params;
   const [chatMessage, setChatMessage] = useState<CreateChatMessageDTO[]>([]);
   const user = useAppSelector((state: UserRootState) => state.user);
-  const dispatch = useAppDispatch();
   const scrollViewRef = useRef<ScrollView>(null);
   const [typing, setTyping] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [token, setToken] = useState<string>('');
   const snapPoints = React.useMemo(() => ['30%', '40%', '75%', '95%'], []);
   const {
     handleClick,
@@ -87,7 +91,19 @@ const ChatScreen = ({ route }: Props) => {
       });
   }, []);
 
+  const getExpo = useCallback(async () => {
+    await api
+      .get('/v1/message/list/rtoken/' + conversationId)
+      .then((resp) => {
+        setToken(resp.data);
+      })
+      .catch((err) => {
+        Alert.alert(err);
+      });
+  }, []);
+
   useLayoutEffect(() => {
+    getExpo();
     getMessages();
     handleScrollToEnd();
   }, []);
@@ -127,6 +143,7 @@ const ChatScreen = ({ route }: Props) => {
 
         socket.emit('sendMessage', payload);
         setChatMessage((data) => [...data, newMessage]);
+        sendPushNotification(token, message, user.fullname);
         handleScrollToEnd();
         setMessage('');
       }}

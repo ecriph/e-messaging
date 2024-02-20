@@ -50,6 +50,7 @@ export declare class MessageController {
         createdAt: Date;
         updatedAt: Date;
     }[]>;
+    getToken(authContext: AuthContext, listMessage: ListMessageDTO): Promise<string | undefined>;
     getMessages(authContext: AuthContext, listMessage: ListMessageDTO): Promise<{
         id: string;
         content: string;

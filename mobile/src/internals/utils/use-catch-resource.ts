@@ -7,7 +7,7 @@ import { confirmToken } from '../../redux/user/action';
 import { registerForPushNotificationsAsync } from '../service/push-notification';
 import * as Notifications from 'expo-notifications';
 import { Notification, Subscription } from 'expo-notifications';
-import { LOGIN_SUCCESS, REGISTER_TOKEN } from '../../redux/user/reducer';
+import { LOGIN_USER, REGISTER_TOKEN } from '../../redux/user/reducer';
 import { EnvironmentVariables } from '../runtime/environment-vairables';
 import axios from 'axios';
 import { REFRESHTOKEN, ACCESSTOKEN } from '../data/const';
@@ -68,7 +68,7 @@ function useCatchResource(store: any) {
             // if (status === 'success') {
             AsyncStorage.setItem(ACCESSTOKEN, access_token);
             await store.dispatch(
-              LOGIN_SUCCESS({ userId: userId, fullname: fullname })
+              LOGIN_USER({ userId: userId, fullname: fullname })
             );
             // } else {
             //   return;

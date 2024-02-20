@@ -4,11 +4,12 @@ import { CreateConversationSchema } from '@/shared/messages/create-conversation/
 // import { CreateMessageSchema } from '@/shared/messages/create-message/create-message.schemas';
 import { ListMessageDTO } from '@/shared/messages/list-message/list-message.dto';
 import { ListMessageSchema } from '@/shared/messages/list-message/list-message.schemas';
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Logger } from '@nestjs/common';
 import { Conversation, Message } from '@prisma/client';
 import { AuthContext } from 'src/auth/auth-context';
 import { WithAuthContext } from 'src/auth/auth-context.decorator';
 import { PrismaClientService } from 'src/internals/database/prisma-client.service';
+import { ResourceNotFoundException } from 'src/internals/server/resource-not-found.exception';
 import { ValidationPipe } from 'src/internals/validation/validation.pipe';
 
 const lastMessage = (conversation: Conversation & { messages: Message[] }) => {
@@ -52,6 +53,38 @@ export class MessageController {
     const conversationsWithLastMessage = (await conversation).map(lastMessage);
 
     return conversationsWithLastMessage;
+  }
+
+  @Get('/list/rtoken/:conversationId')
+  async getToken(
+    @WithAuthContext() authContext: AuthContext,
+    @Param(new ValidationPipe(ListMessageSchema)) listMessage: ListMessageDTO,
+  ) {
+    return this.prisma.getClient().$transaction(async (tx) => {
+      const getMessages = await tx.conversation.findFirst({
+        where: {
+          id: listMessage.conversationId,
+        },
+      });
+
+      if (!getMessages)
+        throw new ResourceNotFoundException('Convo does not exist');
+
+      if (getMessages.userId !== authContext.user.id) {
+        const getToken = await tx.pushToken.findFirst({
+          where: { userId: getMessages.userId },
+        });
+
+        return getToken?.token;
+      } else if (getMessages.recipientId !== authContext.user.id) {
+        const getToken = await tx.pushToken.findFirst({
+          where: { userId: getMessages.recipientId },
+        });
+
+        return getToken?.token;
+      }
+      Logger.log(authContext.user.id);
+    });
   }
 
   @Get('/list/message/:conversationId')
