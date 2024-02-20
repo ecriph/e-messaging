@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EnvironmentVariables } from '../runtime/environment-vairables';
 import { TransportFailure } from '../transport/transport-failure';
-import { ACCESSTOKEN, REFRESHTOKEN } from '../data/const';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../data/const';
 
 const api = axios.create({
   baseURL: EnvironmentVariables.MAIN_API_URL, // Replace with your API URL
@@ -16,8 +16,8 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     try {
-      const refreshToken = await AsyncStorage.getItem(REFRESHTOKEN);
-      const accessToken = await AsyncStorage.getItem(ACCESSTOKEN);
+      const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN);
+      const accessToken = await AsyncStorage.getItem(ACCESS_TOKEN);
       if (!refreshToken) {
         return config;
       }
