@@ -9,6 +9,9 @@ export class UserAuthTokenDTO {
 
 export class UserAuthResponseDTO {
   access_token!: string;
+  userId!: string;
+  fullname!: string;
+  status!: string;
 }
 
 export class UserTokenStatus {
