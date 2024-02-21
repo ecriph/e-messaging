@@ -93,7 +93,6 @@ function useCatchResource(store: any) {
 
     async function prepare() {
       try {
-        AsyncStorage.clear();
         await SplashScreen.preventAutoHideAsync();
 
         await loadResourcesAsync();

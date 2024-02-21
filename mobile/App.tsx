@@ -14,7 +14,6 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 export default function App() {
   const isReady = useCatchResource(store);
-
   if (!isReady) return <Loading />;
 
   return (
