@@ -7,6 +7,9 @@ export declare class UserAuthTokenDTO {
 }
 export declare class UserAuthResponseDTO {
     access_token: string;
+    userId: string;
+    fullname: string;
+    status: string;
 }
 export declare class UserTokenStatus {
     success: boolean;

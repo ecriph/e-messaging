@@ -34,8 +34,12 @@ export const ChatList = () => {
 
   useLayoutEffect(() => {
     socket.emit('listConvo', { userId: user.userId });
-    socket.on('conversationList', (data) => {
-      setConvo(data);
+    socket.on('conversationList', (data: ConversationResponseListDTO[]) => {
+      const filter = data.filter(
+        (list) =>
+          list.userId === user.userId || list.recipientId === user.userId
+      );
+      setConvo(filter);
     });
   }, []);
 

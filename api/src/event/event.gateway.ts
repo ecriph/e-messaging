@@ -53,7 +53,6 @@ export class EventGateway implements OnGatewayInit {
       });
 
       this.server.to(data.conversationId).emit('receiveMessage', getMessages);
-      // this.server.emit('lastMessage', data.content);
     });
   }
 

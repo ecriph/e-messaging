@@ -61,16 +61,6 @@ export declare class MessageController {
         updatedAt: Date;
     }[]>;
     createConversation(authContext: AuthContext, createConversation: createConversationDTO): Promise<{
-        messages: {
-            id: string;
-            content: string;
-            category: string;
-            senderId: string;
-            conversationId: string;
-            createdAt: Date;
-            updatedAt: Date;
-        }[];
-    } & {
         id: string;
         userId: string;
         userName: string;
