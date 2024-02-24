@@ -86,16 +86,30 @@ let MessageController = class MessageController {
         return getMessages;
     }
     async createConversation(authContext, createConversation) {
-        const conversation = await this.prisma.getClient().conversation.create({
-            data: {
-                userId: authContext.user.id,
-                recipientId: createConversation.recipientId,
-                userName: createConversation.userName,
-                recipientName: createConversation.recipientName,
-            },
-            include: { messages: true },
+        return await this.prisma.getClient().$transaction(async (tx) => {
+            const checkIfConversationExist = await tx.conversation.findFirst({
+                where: {
+                    OR: [
+                        { userId: authContext.user.id },
+                        { recipientId: authContext.user.id },
+                        { userId: createConversation.recipientId },
+                        { recipientId: createConversation.recipientId },
+                    ],
+                },
+            });
+            if (checkIfConversationExist)
+                return checkIfConversationExist;
+            const conversation = await this.prisma.getClient().conversation.create({
+                data: {
+                    userId: authContext.user.id,
+                    recipientId: createConversation.recipientId,
+                    userName: createConversation.userName,
+                    recipientName: createConversation.recipientName,
+                },
+                include: { messages: true },
+            });
+            return conversation;
         });
-        return conversation;
     }
 };
 exports.MessageController = MessageController;
@@ -137,7 +151,7 @@ __decorate([
 ], MessageController.prototype, "getMessages", null);
 __decorate([
     (0, common_1.Post)('/create/conversation'),
-    openapi.ApiResponse({ status: 201, type: Object }),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, auth_context_decorator_1.WithAuthContext)()),
     __param(1, (0, common_1.Body)(new validation_pipe_1.ValidationPipe(create_conversation_schemas_1.CreateConversationSchema))),
     __metadata("design:type", Function),

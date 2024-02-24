@@ -101,39 +101,38 @@ export class MessageController {
     return getMessages;
   }
 
-  // @Post('/create/message')
-  // async createMessage(
-  //   @WithAuthContext() authContext: AuthContext,
-  //   @Body(new ValidationPipe(CreateMessageSchema))
-  //   sendMessage: CreateMessageDTO,
-  // ) {
-  //   const message = await this.prisma.getClient().message.create({
-  //     data: {
-  //       content: sendMessage.content,
-  //       senderId: authContext.user.id,
-  //       conversationId: sendMessage.conversationId,
-  //     },
-  //   });
-
-  //   return message;
-  // }
-
   @Post('/create/conversation')
   async createConversation(
     @WithAuthContext() authContext: AuthContext,
     @Body(new ValidationPipe(CreateConversationSchema))
     createConversation: createConversationDTO,
   ) {
-    const conversation = await this.prisma.getClient().conversation.create({
-      data: {
-        userId: authContext.user.id,
-        recipientId: createConversation.recipientId,
-        userName: createConversation.userName,
-        recipientName: createConversation.recipientName,
-      },
-      include: { messages: true },
-    });
+    return await this.prisma.getClient().$transaction(async (tx) => {
+      //check if conversation exist with recipient if not create new
+      const checkIfConversationExist = await tx.conversation.findFirst({
+        where: {
+          OR: [
+            { userId: authContext.user.id },
+            { recipientId: authContext.user.id },
+            { userId: createConversation.recipientId },
+            { recipientId: createConversation.recipientId },
+          ],
+        },
+      });
 
-    return conversation;
+      if (checkIfConversationExist) return checkIfConversationExist;
+
+      const conversation = await this.prisma.getClient().conversation.create({
+        data: {
+          userId: authContext.user.id,
+          recipientId: createConversation.recipientId,
+          userName: createConversation.userName,
+          recipientName: createConversation.recipientName,
+        },
+        include: { messages: true },
+      });
+
+      return conversation;
+    });
   }
 }

@@ -17,25 +17,23 @@ import { AttachButton, ChatButton } from '../../../internals/ui-kit/button';
 import { Colors, Font, FontSize } from '../../../internals/ui-kit/theme';
 import BackArrow from '../../../internals/ui-kit/back-arrow';
 import { Formik } from 'formik';
-import {
-  RECIPIENT_TOKEN,
-  REGISTER_TOKEN,
-  UserRootState,
-} from '../../../redux/user/reducer';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { Ionicons } from '@expo/vector-icons';
+
+import { UserRootState } from '../../../redux/user/reducer';
+import { useAppSelector } from '../../../redux/hooks';
 import { ActivityIndicator, Alert } from 'react-native';
 import { RootStackParamList } from '../../../navigation/route-types';
 import { RouteProp } from '@react-navigation/native';
 import { CreateChatMessageDTO } from '@/shared/messages/create-message/create-message.dto';
 import { ScrollView } from 'react-native-gesture-handler';
-import { UserStatus } from '@/shared/users/user-login/user-status.dto';
 import { sendPushNotification } from '../../../internals/service/push-notification';
 import { api } from '../../../internals/api/use-main-axios';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, TouchableOpacity } from '@gorhom/bottom-sheet';
 import { ChatAttachment } from './chat-component/chat-attachment';
 import { ChatContainer } from './chat-component/chat-container';
 import useModal from '../../../internals/utils/use-modal-sheet';
 import socket from '../../../internals/service/socket/socket-services';
+import * as Speech from 'expo-speech';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'ChatScreen'>;
 
@@ -54,7 +52,10 @@ const ChatScreen = ({ route }: Props) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [typing, setTyping] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
+  const [voiceNote, setVoiceNote] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [messageLoading, setMessageLoading] = useState<boolean>(false);
   const [token, setToken] = useState<string>('');
   const snapPoints = React.useMemo(() => ['30%', '40%', '75%', '95%'], []);
   const {
@@ -82,13 +83,23 @@ const ChatScreen = ({ route }: Props) => {
   };
 
   const getMessages = useCallback(async () => {
+    setMessageLoading(true);
     await api
       .get('/v1/message/list/message/' + conversationId)
       .then((resp) => {
         setChatMessage(resp.data);
+        resp.data.map((data: CreateChatMessageDTO) => {
+          if (data.category === 'Photo') {
+            setVoiceNote((prev) => prev + 'Image attachment,');
+          } else {
+            setVoiceNote((prev) => prev + data.content + ',');
+          }
+        });
+        setMessageLoading(false);
       })
       .catch((err) => {
         Alert.alert(err);
+        setMessageLoading(false);
       });
   }, []);
 
@@ -108,6 +119,20 @@ const ChatScreen = ({ route }: Props) => {
     getMessages();
     handleScrollToEnd();
   }, []);
+
+  const handlePlayConversation = (value: string) => {
+    if (value === 'play') {
+      Speech.speak(voiceNote, {
+        onDone: () => {
+          setStatus('stop');
+        },
+      });
+      setStatus('play');
+    } else if (value === 'stop') {
+      Speech.stop();
+      setStatus('stop');
+    }
+  };
 
   useEffect(() => {
     socket.on('receiveMessage', (messages) => {
@@ -252,16 +277,33 @@ const ChatScreen = ({ route }: Props) => {
                   {typing}
                 </SmallText>
               </FlexColumnContainer>
-              <FlexColumnContainer>
-                {/* <Ionicons name="call-outline" size={24} color="black" /> */}
-              </FlexColumnContainer>
+              <FlexRowContainer justifyContent="space-evenly">
+                {(status === '' || status === 'stop') && (
+                  <TouchableOpacity
+                    onPress={() => handlePlayConversation('play')}
+                  >
+                    <Ionicons name="play" size={24} color={Colors.grey} />
+                  </TouchableOpacity>
+                )}
+                {status === 'play' && (
+                  <TouchableOpacity
+                    onPress={() => handlePlayConversation('stop')}
+                  >
+                    <Ionicons name="stop" size={24} color={Colors.grey} />
+                  </TouchableOpacity>
+                )}
+              </FlexRowContainer>
             </FlexRowContainer>
             <PressableContainer>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 ref={scrollViewRef}
               >
-                {chatMessage.length == 0 ? (
+                {messageLoading ? (
+                  <FlexRowContainer mt="200px">
+                    <ActivityIndicator size="large" color={Colors.green} />
+                  </FlexRowContainer>
+                ) : chatMessage.length == 0 ? (
                   <FlexColumnContainer
                     mt="250px"
                     align="center"
